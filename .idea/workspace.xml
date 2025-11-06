@@ -4,7 +4,38 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="76236455-cc2e-4453-86d2-4332003a50ab" name="Changes" comment="all stuff" />
+    <list default="true" id="76236455-cc2e-4453-86d2-4332003a50ab" name="Changes" comment="all stuff">
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/SRC/App.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/SRC/App.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/SRC/PVPMode.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/SRC/PVPModeMultiplayer.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/SRC/index.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/SRC/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/SRC/reportWebVitals.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/SRC/setupTests.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/Datapoison-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/Excessiveagency-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/ImproperOhandling-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/Misinformation-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/SystempLeakage-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/Unboundedconsumption-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/Vectorweakness-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/endlessmode-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/logo.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/nohint-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/opponent-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/player-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/prompt-injection.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/pvp-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/pvpmode-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/redteam-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/sensitiveinformation-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/storymode-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/supplychain-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/timer-logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assets/winner-logo.png" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -38,21 +69,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Feddy&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "Feddy",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/federicogiudice/IdeaProjects/USDA-CTF NEW/.idea/assets",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/assets" />

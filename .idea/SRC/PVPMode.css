@@ -1,0 +1,800 @@
+/* ============================================
+   PVP MODE STYLES
+   ============================================ */
+
+.pvp-container {
+    background: #000;
+    color: white;
+    min-height: 100vh;
+    padding: 24px;
+}
+
+/* ============================================
+   SETUP SCREEN
+   ============================================ */
+.pvp-setup {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.pvp-title {
+    font-size: 60px;
+    font-weight: bold;
+    color: white;
+    background: #000;
+    border: 4px solid #ff3333;
+    padding: 20px;
+    display: inline-block;
+    margin-bottom: 16px;
+}
+
+.pvp-title-red {
+    color: #ff3333;
+}
+
+.pvp-title-white {
+    color: white;
+}
+
+.pvp-subtitle {
+    font-size: 24px;
+    color: white;
+    margin-bottom: 48px;
+}
+
+.pvp-rules {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 32px;
+    border: 2px solid #334155;
+    margin-bottom: 32px;
+    text-align: left;
+}
+
+.pvp-rules h3 {
+    font-size: 24px;
+    color: #ff3333;
+    margin-bottom: 16px;
+}
+
+.pvp-rules ul {
+    list-style: none;
+    padding: 0;
+}
+
+.pvp-rules li {
+    font-size: 16px;
+    color: #e5e7eb;
+    margin-bottom: 12px;
+    padding-left: 8px;
+}
+
+.pvp-button-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.pvp-start-button {
+    background: #ff3333;
+    color: white;
+    padding: 16px 48px;
+    border-radius: 12px;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.pvp-start-button:hover {
+    background: #ff3333;
+    transform: scale(1.05);
+}
+
+.pvp-back-button {
+    background: #334155;
+    color: white;
+    padding: 16px 48px;
+    border-radius: 12px;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.pvp-back-button:hover {
+    background: #475569;
+}
+
+/* ============================================
+   GAME END SCREEN
+   ============================================ */
+.pvp-game-end {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.winner-announcement {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 64px 32px;
+    border: 3px solid #ff3333;
+    margin-bottom: 32px;
+}
+
+.trophy-icon {
+    font-size: 120px;
+    margin-bottom: 24px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.winner-announcement h1 {
+    font-size: 48px;
+    color: #ff3333;
+    margin-bottom: 32px;
+}
+
+.final-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    font-size: 32px;
+}
+
+.final-score-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.score-number {
+    font-size: 48px;
+    font-weight: bold;
+    color: #ff3333;
+}
+
+.vs-divider {
+    font-size: 36px;
+    color: #9ca3af;
+}
+
+.pvp-rematch-button {
+    background: #ff3333;
+    color: white;
+    padding: 16px 48px;
+    border-radius: 12px;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.pvp-rematch-button:hover {
+    background: #ff3333;
+    transform: scale(1.05);
+}
+
+/* ============================================
+   GAME SCREEN
+   ============================================ */
+.pvp-game {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.pvp-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    position: relative;
+}
+
+.pvp-back-small {
+    position: absolute;
+    left: 0;
+    background: #334155;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.pvp-back-small:hover {
+    background: #475569;
+}
+
+.pvp-mode-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #ff3333;
+}
+
+/* ============================================
+   SCORE BOARD
+   ============================================ */
+.score-board {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 24px;
+    border: 2px solid #334155;
+    margin-bottom: 24px;
+}
+
+.score-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.player-icon {
+    font-size: 48px;
+}
+
+.player-icon img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.player-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ff3333;
+}
+
+.player-score {
+    font-size: 36px;
+    font-weight: bold;
+    color: #ff3333;
+}
+
+.round-indicator {
+    text-align: center;
+}
+
+.round-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff3333;
+}
+
+.round-subtitle {
+    font-size: 14px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+/* ============================================
+   TURN INDICATOR
+   ============================================ */
+.turn-indicator {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 16px 24px;
+    border: 2px solid #ff3333;
+    margin-bottom: 24px;
+    transition: all 0.3s;
+}
+
+.turn-indicator.player-1-turn {
+    border-color: #ff3333;
+}
+
+.turn-indicator.player-2-turn {
+    border-color: #ff3333;
+}
+
+.turn-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.turn-icon {
+    font-size: 32px;
+}
+
+.turn-icon img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.turn-text {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff3333;
+}
+
+/* ============================================
+   GAME GRID
+   ============================================ */
+.pvp-game-grid {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 24px;
+}
+
+@media (max-width: 1200px) {
+    .pvp-game-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   LEFT PANEL
+   ============================================ */
+.pvp-left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pvp-character-display {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 24px;
+    border: 2px solid #334155;
+    text-align: center;
+}
+
+.character-avatar-large {
+    font-size: 120px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.character-avatar-large img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+}
+
+.character-name {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff3333;
+    margin-bottom: 8px;
+}
+
+.character-role {
+    font-size: 14px;
+    color: #e5e7eb;
+    margin-bottom: 16px;
+}
+
+.vulnerability-badge {
+    background: rgba(255, 51, 51, 0.2);
+    color: #ff3333;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    display: inline-block;
+    border: 1px solid #ff3333;
+}
+
+.hint-display {
+    margin-top: 16px;
+    background: rgba(255, 51, 51, 0.1);
+    border: 1px solid #ff3333;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.hint-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.hint-text {
+    font-size: 14px;
+    color: #e5e7eb;
+}
+
+.no-hint-badge {
+    margin-top: 16px;
+    background: rgba(255, 51, 51, 0.2);
+    color: #ff9999;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    border: 1px solid #ff3333;
+}
+
+/* ============================================
+   PASSWORD GUESSER
+   ============================================ */
+.pvp-password-guesser {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #334155;
+}
+
+.guess-title {
+    font-size: 18px;
+    color: #ff3333;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.priority-notice {
+    font-size: 14px;
+    color: #ff3333;
+    text-align: center;
+    margin-bottom: 12px;
+    font-weight: bold;
+}
+
+.priority-notice.open-guess {
+    color: #22c55e;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.password-input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.password-input {
+    flex: 1;
+    background: #334155;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #475569;
+    outline: none;
+    font-size: 16px;
+}
+
+.password-input:focus {
+    border-color: #ff3333;
+}
+
+.password-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.password-button {
+    background: #ff3333;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.password-button:hover:not(:disabled) {
+    transform: scale(1.05);
+}
+
+.password-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.guess-message {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.guess-message.success {
+    color: #22c55e;
+}
+
+.guess-message.error {
+    color: #ff3333;
+}
+
+/* ============================================
+   TIMER
+   ============================================ */
+.pvp-timer {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #475569;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.pvp-timer.active {
+    border-color: #ff3333;
+    box-shadow: 0 0 20px rgba(255, 51, 51, 0.3);
+}
+
+.timer-label {
+    font-size: 14px;
+    color: #9ca3af;
+    margin-bottom: 8px;
+}
+
+.timer-value {
+    font-size: 48px;
+    font-weight: bold;
+    color: #ff3333;
+}
+
+/* ============================================
+   CHAT PANEL
+   ============================================ */
+.pvp-chat-panel {
+    background: #1e293b;
+    border-radius: 12px;
+    border: 2px solid #334155;
+    display: flex;
+    flex-direction: column;
+    height: 700px;
+}
+
+.pvp-chat-header {
+    background: #1e293b;
+    padding: 16px;
+    border-bottom: 2px solid #334155;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 10px 10px 0 0;
+}
+
+.chat-header-avatar {
+    font-size: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-header-avatar img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.chat-header-name {
+    font-weight: bold;
+    color: #ff3333;
+    font-size: 20px;
+}
+
+.chat-header-role {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+/* ============================================
+   CHAT MESSAGES
+   ============================================ */
+.pvp-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.chat-empty {
+    text-align: center;
+    color: #9ca3af;
+    margin-top: 64px;
+}
+
+.chat-empty-avatar {
+    font-size: 96px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-empty-avatar img {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+}
+
+.chat-empty-title {
+    font-size: 20px;
+    color: #ff3333;
+}
+
+.chat-empty-subtitle {
+    font-size: 14px;
+    color: #9ca3af;
+    margin-top: 8px;
+}
+
+.pvp-chat-message {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.pvp-chat-message.user {
+    justify-content: flex-end;
+}
+
+.pvp-chat-message.assistant {
+    justify-content: flex-start;
+}
+
+.chat-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.chat-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-avatar.user-avatar img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+}
+
+.assistant-avatar {
+    background: #ff3333;
+}
+
+.user-avatar {
+    background: #ff3333;
+}
+
+.user-avatar.player-1 {
+    background: #ff3333;
+}
+
+.user-avatar.player-2 {
+    background: #ff3333;
+}
+
+.chat-bubble {
+    border-radius: 12px;
+    padding: 16px;
+    max-width: 70%;
+}
+
+.user-bubble {
+    background: rgba(255, 51, 51, 0.2);
+    border: 1px solid #ff3333;
+    margin-left: auto;
+}
+
+.assistant-bubble {
+    background: #334155;
+    border: 1px solid #475569;
+}
+
+.chat-author {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    opacity: 0.85;
+}
+
+.chat-content {
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+}
+
+.chat-loading {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.loading-bubble {
+    background: #334155;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #475569;
+}
+
+.loading-bubble p {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+/* ============================================
+   CHAT INPUT
+   ============================================ */
+.pvp-chat-input-container {
+    padding: 16px;
+    border-top: 2px solid #334155;
+    background: #000;
+    border-radius: 0 0 10px 10px;
+}
+
+.chat-input-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.chat-input {
+    flex: 1;
+    background: #334155;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #475569;
+    outline: none;
+    font-size: 14px;
+}
+
+.chat-input:focus {
+    border-color: #ff3333;
+}
+
+.chat-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.chat-send-button {
+    background: #ff3333;
+    color: white;
+    padding: 12px 32px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.chat-send-button:hover:not(:disabled) {
+    transform: scale(1.05);
+}
+
+.chat-send-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.chat-tip {
+    font-size: 12px;
+    color: #9ca3af;
+    text-align: center;
+}
