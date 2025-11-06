@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
+import redteamLogo from './assets/redteam-logo.png';
+import storymodeLogo from './assets/storymode-logo.png';
+import endlessmodeLogo from './assets/endlessmode-logo.png';
+import pvpmodeLogo from './assets/pvpmode-logo.png';
+import PVPModeMultiplayer from './PVPModeMultiplayer';
 import Leaderboard from './components/Leaderboard';
 import GameOverModal from './components/GameOverModal';
-
 import {HintSystem} from "./HintSystem.jsx";
 import { CHARACTERS } from './data/characters.js';
+
 // ============================================
 // CONSTANTS
 // ============================================
@@ -90,6 +95,58 @@ class GeminiService {
 // Create and export a global hint system with all levels
 // eslint-disable-next-line react-refresh/only-export-components
 export const hintSystem = new HintSystem(CHARACTERS);
+
+// VULNERABILITY MODAL COMPONENT (from File 1)
+const VulnerabilityModal = ({ isOpen, onClose, character }) => {
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') onClose();
+        };
+        if (isOpen) {
+            document.addEventListener('keydown', handleEscape);
+            document.body.style.overflow = 'hidden';
+        }
+        return () => {
+            document.removeEventListener('keydown', handleEscape);
+            document.body.style.overflow = 'auto';
+        };
+    }, [isOpen, onClose]);
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                    <h2>
+                        {typeof character.avatar === 'string' && character.avatar.includes('.png') ? (
+                            <img src={character.avatar} alt={character.name} className="modal-header-avatar-img" />
+                        ) : (
+                            character.avatar
+                        )}
+                        {' '}{character.owasp}
+                    </h2>
+                    <p>OWASP Top 10 for LLM Applications v2.0</p>
+                    <button className="modal-close" onClick={onClose}>&times;</button>
+                </div>
+                <div className="modal-body">
+                    <h3>Description</h3>
+                    <p>{character.explanation}</p>
+
+                    <h3>Why It's Dangerous</h3>
+                    <p>{character.danger}</p>
+
+                    <h3>Prevention</h3>
+                    <p>{character.prevention}</p>
+
+                    <h3>Tips for This Challenge</h3>
+                    <p>{character.hint}</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const HintBox = ({ char }) => {
     const [showExplanation, setShowExplanation] = useState(false);
     const [currentHint, setCurrentHint] = useState("");
@@ -192,12 +249,17 @@ const HintBox = ({ char }) => {
 // ChatMessage Component
 const ChatMessage = ({ msg, char }) => {
     const isUser = msg.role === 'user';
+    const isImage = typeof char.avatar === 'string' && (char.avatar.includes('.png') || char.avatar.includes('data:image'));
 
     return (
         <div className={`chat-message ${isUser ? 'user' : 'assistant'}`}>
             {!isUser && (
                 <div className="chat-avatar assistant-avatar">
-                    {char.avatar}
+                    {isImage ? (
+                        <img src={char.avatar} alt={char.name} className="chat-avatar-img" />
+                    ) : (
+                        char.avatar
+                    )}
                 </div>
             )}
             <div className={`chat-bubble ${isUser ? 'user-bubble' : 'assistant-bubble'}`}>
@@ -258,9 +320,17 @@ const PasswordGuesser = ({
 
 // CharacterCard Component
 const CharacterCard = ({ char }) => {
+    const isImage = typeof char.avatar === 'string' && (char.avatar.includes('.png') || char.avatar.includes('data:image'));
+
     return (
         <div className="character-card">
-            <div className="character-avatar">{char.avatar}</div>
+            <div className="character-avatar">
+                {isImage ? (
+                    <img src={char.avatar} alt={char.name} className="character-avatar-img" />
+                ) : (
+                    char.avatar
+                )}
+            </div>
             <h3 className="character-name">{char.name}</h3>
             <p className="character-role">{char.role}</p>
         </div>
@@ -312,10 +382,18 @@ const ChatPanel = ({
                        handleSubmit,
                        chatContainerRef
                    }) => {
+    const isImage = typeof char.avatar === 'string' && (char.avatar.includes('.png') || char.avatar.includes('data:image'));
+
     return (
         <div className="chat-panel">
             <div className="chat-header">
-                <div className="chat-header-avatar">{char.avatar}</div>
+                <div className="chat-header-avatar">
+                    {isImage ? (
+                        <img src={char.avatar} alt={char.name} className="chat-header-avatar-img" />
+                    ) : (
+                        char.avatar
+                    )}
+                </div>
                 <div>
                     <h3 className="chat-header-name">{char.name}</h3>
                     <p className="chat-header-role">{char.role}</p>
@@ -325,7 +403,13 @@ const ChatPanel = ({
             <div className="chat-messages" ref={chatContainerRef}>
                 {chatHistory.length === 0 ? (
                     <div className="chat-empty">
-                        <div className="chat-empty-avatar">{char.avatar}</div>
+                        <div className="chat-empty-avatar">
+                            {isImage ? (
+                                <img src={char.avatar} alt={char.name} className="character-avatar-img" />
+                            ) : (
+                                char.avatar
+                            )}
+                        </div>
                         <p className="chat-empty-title">Start a conversation with {char.name}</p>
                         <p className="chat-empty-subtitle">
                             Use prompt engineering to extract the password
@@ -365,7 +449,7 @@ const ChatPanel = ({
     );
 };
 
-// MenuScreen Component
+// MenuScreen Component (with PNGs, username system, and modal from File 1)
 const MenuScreen = ({
                         onStartGame,
                         apiKeyInput,
@@ -373,14 +457,20 @@ const MenuScreen = ({
                         setGeminiApiKey,
                         showApiInput,
                         setShowApiInput,
-                        onShowLeaderboard
+                        onShowLeaderboard,
+                        username,
+                        setUsername,
+                        usernameInput,
+                        setUsernameInput,
+                        modalCharacter,
+                        setModalCharacter
                     }) => {
     return (
         <div className="menu-screen">
             <div className="menu-container">
                 <div className="menu-header">
                     <div className="menu-title-group">
-                        <span className="menu-icon">🛡️</span>
+                        <img src={redteamLogo} alt="Red Team Logo" className="menu-icon" />
                         <h1 className="menu-title">AI Red Team CTF</h1>
                     </div>
                     <p className="menu-subtitle">OWASP Top 10 for LLMs 2025</p>
@@ -421,16 +511,42 @@ const MenuScreen = ({
                     </div>
                 ) : (
                     <>
+                        {!username && (
+                            <div className="username-box">
+                                <h3>👤 Enter Your Username</h3>
+                                <div className="api-key-input-group">
+                                    <input
+                                        type="text"
+                                        value={usernameInput}
+                                        onChange={(e) => setUsernameInput(e.target.value)}
+                                        placeholder="Your name..."
+                                        className="api-key-input"
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            const trimmed = (usernameInput || '').trim();
+                                            if (!trimmed) return;
+                                            setUsername(trimmed);
+                                        }}
+                                        className="api-key-button"
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                        {username && (
+                            <div className="player-badge-fixed">Player: {username}</div>
+                        )}
                         <div className="game-modes">
-                            <button onClick={() => onStartGame('story')} className="game-mode-card story-mode">
-                                <div className="mode-icon">🏆</div>
-                                <h3>Story Mode</h3>
-                                <p>Complete all 11 levels including the final boss</p>
+                            <button onClick={() => onStartGame('story')} className="story-mode-button" disabled={!username}>
+                                <img src={storymodeLogo} alt="Story Mode" />
                             </button>
-                            <button onClick={() => onStartGame('endless')} className="game-mode-card endless-mode">
-                                <div className="mode-icon">♾️</div>
-                                <h3>Endless Mode</h3>
-                                <p>Face random bosses with increasing difficulty</p>
+                            <button onClick={() => onStartGame('endless')} className="story-mode-button" disabled={!username}>
+                                <img src={endlessmodeLogo} alt="Endless Mode" />
+                            </button>
+                            <button onClick={() => onStartGame('pvp')} className="story-mode-button" disabled={!username}>
+                                <img src={pvpmodeLogo} alt="PvP Mode" />
                             </button>
                         </div>
 
@@ -439,19 +555,39 @@ const MenuScreen = ({
                         </button>
 
                         <div className="owasp-showcase">
-                            <h3>OWASP Top 10 for LLMs (2025)</h3>
+                            <h3>Learn more!</h3>
                             <div className="owasp-grid">
-                                {CHARACTERS.slice(0, 10).map(c => (
-                                    <div key={c.id} className="owasp-item">
-                                        <div className="owasp-avatar">{c.avatar}</div>
-                                        <div className="owasp-code">{c.owasp}</div>
-                                    </div>
-                                ))}
+                                {CHARACTERS.slice(0, 10).map(c => {
+                                    const isImage = typeof c.avatar === 'string' && (c.avatar.includes('.png') || c.avatar.includes('data:image'));
+                                    return (
+                                        <div
+                                            key={c.id}
+                                            className="owasp-item"
+                                            onClick={() => (c.id >= 1 && c.id <= 10) && setModalCharacter(c)}
+                                            style={{ cursor: (c.id >= 1 && c.id <= 10) ? 'pointer' : 'default' }}
+                                        >
+                                            <div className="owasp-avatar">
+                                                {isImage ? (
+                                                    <img src={c.avatar} alt={c.owasp} className="owasp-avatar-img" />
+                                                ) : (
+                                                    c.avatar
+                                                )}
+                                            </div>
+                                            <div className="owasp-code">{c.owasp}</div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </>
                 )}
             </div>
+
+            <VulnerabilityModal
+                isOpen={modalCharacter !== null}
+                onClose={() => setModalCharacter(null)}
+                character={modalCharacter || CHARACTERS[0]}
+            />
         </div>
     );
 };
@@ -463,6 +599,7 @@ const GameScreen = ({
                         currentLevel,
                         endlessBossLevel,
                         endlessScore,
+                        username,
                         char,
                         chatHistory,
                         isLoading,
@@ -481,6 +618,9 @@ const GameScreen = ({
                     }) => {
     return (
         <div className="game-screen">
+            {username && (
+                <div className="player-badge-fixed">Player: {username}</div>
+            )}
             <div className="game-container">
                 <div className="game-header">
                     <h1>AI Red Team CTF</h1>
@@ -494,9 +634,6 @@ const GameScreen = ({
                         ← Back to Menu
                     </button>
                 </div>
-
-                {/* Render HintBox only if a character is selected */}
-                {char && <HintBox char={char} />}
 
                 <div className="game-grid">
                     <div className="left-panel">
@@ -525,6 +662,8 @@ const GameScreen = ({
                                 />
                             )}
                         </div>
+
+                        {char && <HintBox char={char} />}
 
                         <button onClick={resetConversation} className="reset-button">
                             Reset Conversation
@@ -571,6 +710,9 @@ export default function AIRedTeamCTF() {
     const [showGameOverModal, setShowGameOverModal] = useState(false);
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [previousGameMode, setPreviousGameMode] = useState(null);
+    const [username, setUsername] = useState('');
+    const [usernameInput, setUsernameInput] = useState('');
+    const [modalCharacter, setModalCharacter] = useState(null);
 
     // Refs
     const chatContainerRef = useRef(null);
@@ -724,6 +866,12 @@ export default function AIRedTeamCTF() {
                     showApiInput={showApiInput}
                     setShowApiInput={setShowApiInput}
                     onShowLeaderboard={() => setShowLeaderboard(true)}
+                    username={username}
+                    setUsername={setUsername}
+                    usernameInput={usernameInput}
+                    setUsernameInput={setUsernameInput}
+                    modalCharacter={modalCharacter}
+                    setModalCharacter={setModalCharacter}
                 />
                 {showLeaderboard && (
                     <Leaderboard onClose={() => setShowLeaderboard(false)} />
@@ -745,6 +893,16 @@ export default function AIRedTeamCTF() {
         );
     }
 
+    if (gameMode === 'pvp') {
+        return (
+            <PVPModeMultiplayer
+                onBack={() => handleGameModeChange('menu')}
+                geminiApiKey={geminiApiKey}
+                username={username}
+            />
+        );
+    }
+
     return (
         <GameScreen
             gameMode={gameMode}
@@ -753,6 +911,7 @@ export default function AIRedTeamCTF() {
             currentLevel={currentLevel}
             endlessBossLevel={endlessBossLevel}
             endlessScore={endlessScore}
+            username={username}
             char={character}
             chatHistory={chatHistory}
             isLoading={isLoading}

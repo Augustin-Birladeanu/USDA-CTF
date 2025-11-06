@@ -2,28 +2,28 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './PVPMode.css';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue, push, update, remove, onDisconnect } from 'firebase/database';
-import promptInjectionIcon from './prompt-injection.png';
-import sensitiveInformationIcon from './sensitiveinformation-logo.png';
-import supplyChainIcon from './supplychain-logo.png';
-import dataPoisonIcon from './Datapoison-logo.png';
-import improperOutputIcon from './ImproperOhandling-logo.png';
-import excessiveAgencyIcon from './Excessiveagency-logo.png';
-import systemLeakageIcon from './SystempLeakage-logo.png';
-import vectorWeaknessIcon from './Vectorweakness-logo.png';
-import misinformationIcon from './Misinformation-logo.png';
-import unboundConsumptionIcon from './Unboundedconsumption-logo.png';
-import playerLogo from './player-logo.png';
-import opponentLogo from './opponent-logo.png';
-import noHintLogo from './nohint-logo.png';
-import timerLogo from './timer-logo.png';
-import pvpLogo from './pvp-logo.png';
-import winnerLogo from './winner-logo.png';
+import promptInjectionIcon from './assets/prompt-injection.png';
+import sensitiveInformationIcon from './assets/sensitiveinformation-logo.png';
+import supplyChainIcon from './assets/supplychain-logo.png';
+import dataPoisonIcon from './assets/Datapoison-logo.png';
+import improperOutputIcon from './assets/ImproperOhandling-logo.png';
+import excessiveAgencyIcon from './assets/Excessiveagency-logo.png';
+import systemLeakageIcon from './assets/SystempLeakage-logo.png';
+import vectorWeaknessIcon from './assets/Vectorweakness-logo.png';
+import misinformationIcon from './assets/Misinformation-logo.png';
+import unboundConsumptionIcon from './assets/Unboundedconsumption-logo.png';
+import playerLogo from './assets/player-logo.png';
+import opponentLogo from './assets/opponent-logo.png';
+import noHintLogo from './assets/nohint-logo.png';
+import timerLogo from './assets/timer-logo.png';
+import pvpLogo from './assets/pvp-logo.png';
+import winnerLogo from './assets/winner-logo.png';
 
 // ============================================
 // FIREBASE CONFIGURATION
 // ============================================
 const firebaseConfig = {
-    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+    apiKey: import.meta.env.VITE_APP_FIREBASE_API_KEY,
     authDomain: "ai-pvp-game.firebaseapp.com",
     databaseURL: "https://ai-pvp-game-default-rtdb.firebaseio.com",
     projectId: "ai-pvp-game",
