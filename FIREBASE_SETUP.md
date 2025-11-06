@@ -1,47 +1,5 @@
 # Firebase Realtime Database Leaderboard Setup Guide
 
-## Step 0: Set Up Environment Variables
-
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Select your project: **ai-pvp-game**
-3. Click the gear icon ⚙️ next to "Project Overview" → **"Project settings"**
-4. Scroll down to the **"Your apps"** section
-5. If you don't have a web app yet, click **"Add app"** → **"Web"** (</> icon)
-6. Copy the configuration values (they'll look like this):
-   ```javascript
-   const firebaseConfig = {
-     apiKey: "AIza...",
-     authDomain: "your-project.firebaseapp.com",
-     databaseURL: "https://your-project-default-rtdb.firebaseio.com/",
-     projectId: "your-project-id",
-     storageBucket: "your-project.appspot.com",
-     messagingSenderId: "123456789",
-     appId: "1:123456789:web:abc123"
-   };
-   ```
-
-7. Create a `.env` file in the project root directory:
-   ```bash
-   cp .env.example .env
-   ```
-
-8. Open `.env` and fill in the values from your Firebase config:
-   ```env
-   VITE_APP_FIREBASE_API_KEY=AIza...
-   VITE_APP_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-   VITE_APP_FIREBASE_DATABASE_URL=https://your-project-default-rtdb.firebaseio.com/
-   VITE_APP_FIREBASE_PROJECT_ID=your-project-id
-   VITE_APP_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-   VITE_APP_FIREBASE_MESSAGING_SENDER_ID=123456789
-   VITE_APP_FIREBASE_APP_ID=1:123456789:web:abc123
-   ```
-
-9. **Important**: Restart your development server after creating/updating the `.env` file:
-   ```bash
-   # Stop the server (Ctrl+C) and restart
-   npm run dev
-   ```
-
 ## Step 1: Enable Realtime Database
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)

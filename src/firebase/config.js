@@ -1,4 +1,7 @@
 // Firebase Configuration
+// Replace these values with your Firebase project credentials
+// You can find these in Firebase Console > Project Settings > General > Your apps
+
 import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 
@@ -39,4 +42,5 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Realtime Database
 export const db = getDatabase(app);
+
 export default app;
