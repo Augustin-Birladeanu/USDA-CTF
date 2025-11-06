@@ -3,10 +3,6 @@ import './App.css';
 import Leaderboard from './components/Leaderboard';
 import GameOverModal from './components/GameOverModal';
 
-import React, {useCallback, useEffect, useRef, useState} from "react";
-import './App.css';
-import Leaderboard from './components/Leaderboard';
-import GameOverModal from './components/GameOverModal';
 import {HintSystem} from "./HintSystem.jsx";
 import { CHARACTERS } from './data/characters.js';
 // ============================================
