@@ -3,12 +3,15 @@ import './App.css';
 import redteamLogo from './assets/redteam-logo.png';
 import storymodeLogo from './assets/storymode-logo.png';
 import endlessmodeLogo from './assets/endlessmode-logo.png';
+import worldLogo from './assets/world.webp';
 import pvpmodeLogo from './assets/pvpmode-logo.png';
 import PVPModeMultiplayer from './PVPModeMultiplayer';
 import Leaderboard from './components/Leaderboard';
 import GameOverModal from './components/GameOverModal';
 import {HintSystem} from "./HintSystem.jsx";
 import { CHARACTERS } from './data/characters.js';
+
+import BotBuilder from './BotBuilder';
 
 // ============================================
 // CONSTANTS
@@ -548,6 +551,16 @@ const MenuScreen = ({
                             <button onClick={() => onStartGame('pvp')} className="story-mode-button" disabled={!username}>
                                 <img src={pvpmodeLogo} alt="PvP Mode" />
                             </button>
+
+                            <button
+                                onClick={() => onStartGame('botbuilder')}
+                                className="bot-builder-mode-button"
+                                disabled={!username}
+                            >
+                              <span className="bot-builder-text">
+                                BOT BUILDER <br /> MODE
+                              </span>
+                            </button>
                         </div>
 
                         <button onClick={onShowLeaderboard} className="leaderboard-menu-btn">
@@ -896,6 +909,15 @@ export default function AIRedTeamCTF() {
     if (gameMode === 'pvp') {
         return (
             <PVPModeMultiplayer
+                onBack={() => handleGameModeChange('menu')}
+                geminiApiKey={geminiApiKey}
+                username={username}
+            />
+        );
+    }
+    if (gameMode === 'botbuilder') {
+        return (
+            <BotBuilder
                 onBack={() => handleGameModeChange('menu')}
                 geminiApiKey={geminiApiKey}
                 username={username}
