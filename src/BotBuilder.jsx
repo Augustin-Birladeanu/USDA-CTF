@@ -5,17 +5,23 @@ import { getDatabase, ref, set, push, onValue, update, remove, query, orderByChi
 import { CHARACTERS } from './data/characters.js';
 
 // ============================================
+// NEW CONSTANTS
+// ============================================
+const DEFAULT_ICONS = ['🤖', '💻', '💡', '🛡️', '💬', '🧠', '⚙️', '🌟'];
+const DEFAULT_CUSTOM_ICON = '🤖';
+
+// ============================================
 // FIREBASE CONFIGURATION
 // ============================================
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_APP_FIREBASE_API_KEY,
-    authDomain: "ai-pvp-game.firebaseapp.com",
-    databaseURL: "https://ai-pvp-game-default-rtdb.firebaseio.com",
-    projectId: "ai-pvp-game",
-    storageBucket: "ai-pvp-game.firebasestorage.app",
-    messagingSenderId: "898332624357",
-    appId: "1:898332624357:web:1d65929976c9e5f2cc5b0c",
-    measurementId: "G-WQJCKDVQMB"
+    authDomain: import.meta.env.VITE_APP_FIREBASE_AUTH_DOMAIN,
+    databaseURL: import.meta.env.VITE_APP_DATABASE_URL,
+    projectId: import.meta.env.VITE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_APP_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_APP_MESSAGING_SENDER,
+    appId: import.meta.env.VITE_APP_ID,
+    measurementId: import.meta.env.VITE_APP_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
@@ -116,9 +122,19 @@ const BotCard = ({ bot, onPlay, onDelete, isOwnBot, username }) => {
     const successRate = bot.attempts > 0
         ? ((bot.cracks / bot.attempts) * 100).toFixed(1)
         : 'N/A';
+
+    const picture = bot.picture || DEFAULT_CUSTOM_ICON;
+
     return (
         <div className="bot-card">
             <div className="bot-card-header">
+                <div className="bot-picture">
+                    {picture.startsWith('http') || picture.endsWith('.jpg') || picture.endsWith('.png') ? (
+                        <img src={picture} alt="Bot Icon" style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '50%' }} />
+                    ) : (
+                        <span style={{ fontSize: '24px' }}>{picture}</span>
+                    )}
+                </div>
                 <h3 className="bot-title">{bot.title}</h3>
                 <div className="bot-creator">by {bot.creator}</div>
             </div>
@@ -158,27 +174,29 @@ const BotCard = ({ bot, onPlay, onDelete, isOwnBot, username }) => {
     );
 };
 
-const ChatMessage = ({ msg, botTitle }) => {
+const ChatMessage = ({ msg, botTitle, botPicture }) => {
     const isUser = msg.role === 'user';
+    const picture = botPicture || '🤖';
 
     return (
         <div className={`bot-chat-message ${isUser ? 'user' : 'assistant'}`}>
-            {!isUser && (
-                <div className="chat-avatar assistant-avatar">
-                    🤖
-                </div>
-            )}
+            <div className="chat-avatar">
+                {isUser ? (
+                    <span style={{ fontSize: '24px' }}>👤</span>
+                ) : (
+                    picture.startsWith('http') || picture.endsWith('.jpg') || picture.endsWith('.png') ? (
+                        <img src={picture} alt="Bot Icon" style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '50%' }} />
+                    ) : (
+                        <span style={{ fontSize: '24px' }}>{picture}</span>
+                    )
+                )}
+            </div>
             <div className={`chat-bubble ${isUser ? 'user-bubble' : 'assistant-bubble'}`}>
                 <p className="chat-author">
                     {isUser ? 'You' : botTitle}
                 </p>
                 <p className="chat-content">{msg.content}</p>
             </div>
-            {isUser && (
-                <div className="chat-avatar user-avatar">
-                    👤
-                </div>
-            )}
         </div>
     );
 };
@@ -196,6 +214,7 @@ export default function BotBuilder({ onBack, geminiApiKey, username }) {
     const [title, setTitle] = useState('');
     const [password, setPassword] = useState('');
     const [instructions, setInstructions] = useState('');
+    const [picture, setPicture] = useState(DEFAULT_CUSTOM_ICON); // NEW: Bot picture state
 
     // Play state
     const [chatHistory, setChatHistory] = useState([]);
@@ -267,7 +286,9 @@ export default function BotBuilder({ onBack, geminiApiKey, username }) {
             attempts: 0,
             totalStars: 0,
             totalRatings: 0,
-            ratings: {}
+            ratings: {},
+            // NEW: Add the selected picture/icon
+            picture: picture.trim() || DEFAULT_CUSTOM_ICON
         };
 
         try {
@@ -278,6 +299,7 @@ export default function BotBuilder({ onBack, geminiApiKey, username }) {
             setTitle('');
             setPassword('');
             setInstructions('');
+            setPicture(DEFAULT_CUSTOM_ICON); // Reset picture state
             setView('browse');
             alert('Bot created successfully!');
         } catch (error) {
@@ -314,6 +336,18 @@ export default function BotBuilder({ onBack, geminiApiKey, username }) {
         setUserRating(0);
         setHasRated(false);
         setView('play');
+    };
+
+    // Handle leaving a bot game (counts as attempt)
+    const handleLeaveGame = async () => {
+        if (currentBot && !gameComplete) {
+            // Increment attempts in Firebase when leaving without completing
+            const botRef = ref(db.current, `customBots/${currentBot.id}`);
+            await update(botRef, {
+                attempts: (currentBot.attempts || 0) + 1
+            });
+        }
+        setView('browse');
     };
 
     // Send message to bot
@@ -466,6 +500,8 @@ export default function BotBuilder({ onBack, geminiApiKey, username }) {
     // RENDER: CREATE VIEW
     // ============================================
     if (view === 'create') {
+        const isUrl = picture && (picture.startsWith('http') || picture.endsWith('.jpg') || picture.endsWith('.png') || picture.endsWith('.gif'));
+
         return (
             <div className="bot-builder-container">
                 <div className="bot-builder-header">
@@ -509,6 +545,53 @@ export default function BotBuilder({ onBack, geminiApiKey, username }) {
                         </small>
                     </div>
 
+                    {/* NEW: Bot Picture Selection */}
+                    <div className="form-section">
+                        <label className="form-label">
+                            Bot Picture/Icon <span className="required">*</span>
+                        </label>
+                        <div className="picture-selection">
+                            {/* Option 1: Predefined Emojis */}
+                            <div className="icon-options">
+                                <span className="icon-label">Choose an icon:</span>
+                                {DEFAULT_ICONS.map(icon => (
+                                    <button
+                                        key={icon}
+                                        className={`icon-button ${picture === icon ? 'selected' : ''}`}
+                                        onClick={() => setPicture(icon)}
+                                    >
+                                        {icon}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Option 2: Custom URL */}
+                            <div className="custom-url-group">
+                                <span className="icon-label">Or use a custom URL:</span>
+                                <input
+                                    type="text"
+                                    value={!DEFAULT_ICONS.includes(picture) ? picture : ''}
+                                    onChange={(e) => setPicture(e.target.value)}
+                                    placeholder="Enter image URL (e.g., .png or .jpg link)"
+                                    className="form-input custom-url-input"
+                                />
+                                <small className="form-help">
+                                    <div className="preview-container">
+                                        <span className="preview-label">Preview:</span>
+                                        <div className="picture-preview">
+                                            {isUrl ? (
+                                                <img src={picture} alt="Bot Preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '50%' }} />
+                                            ) : (
+                                                <span style={{ fontSize: '30px' }}>{picture || DEFAULT_CUSTOM_ICON}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {/* END NEW SECTION */}
+
                     <div className="form-section">
                         <label className="form-label">
                             Bot Instructions <span className="required">*</span>
@@ -543,10 +626,102 @@ export default function BotBuilder({ onBack, geminiApiKey, username }) {
         );
     }
 
+    const BotEditForm = ({ bot, onSave, onCancel, PictureSelection }) => {
+        const [name, setName] = useState(bot.title);
+        const [picture, setPicture] = useState(bot.picture);
+        const [loading, setLoading] = useState(false);
+
+        // Placeholder function for your existing Picture Selection logic
+        const handlePictureChange = (newPicture) => {
+            setPicture(newPicture.trim() || '🤖');
+        };
+
+        const handleSave = async () => {
+            setLoading(true);
+
+            const trimmedName = name.trim();
+            const trimmedPicture = picture.trim();
+
+            // 1. Basic Validation
+            if (!trimmedName || trimmedName.length < 3) {
+                alert("Bot name must be at least 3 characters.");
+                setLoading(false);
+                return;
+            }
+
+            const updates = {};
+            // 2. Collect changes (only send what changed)
+            if (trimmedName !== bot.title) {
+                updates.title = trimmedName;
+            }
+            if (trimmedPicture !== bot.picture) {
+                updates.picture = trimmedPicture;
+            }
+
+            // 3. Save
+            await onSave(bot.id, updates);
+            setLoading(false);
+        };
+
+        const changesExist = name.trim() !== bot.title || picture.trim() !== bot.picture;
+
+        return (
+            <div className="modal-overlay">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h2>Edit Bot: {bot.title}</h2>
+                        <button className="modal-close" onClick={onCancel} disabled={loading}>&times;</button>
+                    </div>
+                    <div className="modal-body">
+                        {/* Bot Name Input */}
+                        <div className="form-section">
+                            <label className="form-label">Bot Name <span className="required">*</span></label>
+                            <input
+                                type="text"
+                                className="form-input"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                maxLength={50}
+                                disabled={loading}
+                            />
+                        </div>
+
+                        {/* Icon/Picture Selection (Placeholder for your UI) */}
+                        <div className="form-section">
+                            <label className="form-label">Icon/Image URL</label>
+                            <p className="form-help">Select an emoji or paste an image URL.</p>
+
+                            <PictureSelection
+                                selectedPicture={picture}
+                                onSelect={handlePictureChange}
+                                disabled={loading}
+                            />
+
+                        </div>
+
+                        <div className="form-actions" style={{justifyContent: 'flex-end', marginTop: '30px'}}>
+                            <button className="cancel-button" onClick={onCancel} disabled={loading}>Cancel</button>
+                            <button
+                                className="submit-button"
+                                onClick={handleSave}
+                                disabled={loading || !changesExist}
+                            >
+                                {loading ? 'Saving...' : 'Save Changes'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     // ============================================
     // RENDER: PLAY VIEW
     // ============================================
     if (view === 'play' && currentBot) {
+        const botPicture = currentBot.picture || DEFAULT_CUSTOM_ICON;
+        const isBotPictureUrl = botPicture.startsWith('http') || botPicture.endsWith('.jpg') || botPicture.endsWith('.png');
+
         return (
             <div className="bot-builder-container">
                 <div className="bot-builder-header">
@@ -554,7 +729,7 @@ export default function BotBuilder({ onBack, geminiApiKey, username }) {
                         <span className="bot-icon">🎮</span> {currentBot.title}
                     </h1>
                     <p className="bot-builder-subtitle">by {currentBot.creator}</p>
-                    <button onClick={() => setView('browse')} className="back-button">← Back</button>
+                    <button onClick={handleLeaveGame} className="back-button">← Back</button>
                 </div>
 
                 <div className="play-container">
@@ -628,7 +803,13 @@ export default function BotBuilder({ onBack, geminiApiKey, username }) {
 
                     <div className="play-chat-panel">
                         <div className="chat-header">
-                            <div className="chat-header-avatar">🤖</div>
+                            <div className="chat-header-avatar">
+                                {isBotPictureUrl ? (
+                                    <img src={botPicture} alt="Bot Icon" style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '50%' }} />
+                                ) : (
+                                    <span style={{ fontSize: '24px' }}>{botPicture}</span>
+                                )}
+                            </div>
                             <div>
                                 <h3 className="chat-header-name">{currentBot.title}</h3>
                                 <p className="chat-header-role">Custom Bot by {currentBot.creator}</p>
@@ -638,7 +819,13 @@ export default function BotBuilder({ onBack, geminiApiKey, username }) {
                         <div className="chat-messages" ref={chatContainerRef}>
                             {chatHistory.length === 0 ? (
                                 <div className="chat-empty">
-                                    <div className="chat-empty-avatar">🤖</div>
+                                    <div className="chat-empty-avatar">
+                                        {isBotPictureUrl ? (
+                                            <img src={botPicture} alt="Bot Icon" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '50%' }} />
+                                        ) : (
+                                            <span style={{ fontSize: '40px' }}>{botPicture}</span>
+                                        )}
+                                    </div>
                                     <p className="chat-empty-title">Start a conversation with {currentBot.title}</p>
                                     <p className="chat-empty-subtitle">
                                         Use prompt engineering to extract the password
@@ -646,7 +833,7 @@ export default function BotBuilder({ onBack, geminiApiKey, username }) {
                                 </div>
                             ) : (
                                 chatHistory.map((msg, i) => (
-                                    <ChatMessage key={i} msg={msg} botTitle={currentBot.title} />
+                                    <ChatMessage key={i} msg={msg} botTitle={currentBot.title} botPicture={botPicture} />
                                 ))
                             )}
                             {isLoading && (

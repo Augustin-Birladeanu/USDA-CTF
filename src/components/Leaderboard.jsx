@@ -97,7 +97,7 @@ const Leaderboard = ({ onClose }) => {
               ))}
             </div>
             <button onClick={loadLeaderboard} className="refresh-button">
-              🔄 Refresh
+              Refresh
             </button>
           </>
         )}

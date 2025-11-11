@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './PVPMode.css';
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getDatabase, ref, set, onValue, push, update, remove, onDisconnect } from 'firebase/database';
+import { getDatabase, ref, set, onValue, push, update, remove, onDisconnect, query, orderByChild, equalTo } from 'firebase/database';
 import { CHARACTERS } from './data/characters.js';
 import playerLogo from './assets/player-logo.png';
 import opponentLogo from './assets/opponent-logo.png';
@@ -15,13 +15,13 @@ import winnerLogo from './assets/winner-logo.png';
 // ============================================
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_APP_FIREBASE_API_KEY,
-    authDomain: "ai-pvp-game.firebaseapp.com",
-    databaseURL: "https://ai-pvp-game-default-rtdb.firebaseio.com",
-    projectId: "ai-pvp-game",
-    storageBucket: "ai-pvp-game.firebasestorage.app",
-    messagingSenderId: "898332624357",
-    appId: "1:898332624357:web:1d65929976c9e5f2cc5b0c",
-    measurementId: "G-WQJCKDVQMB"
+    authDomain: import.meta.env.VITE_APP_FIREBASE_AUTH_DOMAIN,
+    databaseURL: import.meta.env.VITE_APP_DATABASE_URL,
+    projectId: import.meta.env.VITE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_APP_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_APP_MESSAGING_SENDER,
+    appId: import.meta.env.VITE_APP_ID,
+    measurementId: import.meta.env.VITE_APP_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
@@ -30,7 +30,6 @@ let database;
 
 const initFirebase = () => {
     if (!firebaseApp) {
-        // Check if Firebase app already exists
         const existingApps = getApps();
         if (existingApps.length > 0) {
             firebaseApp = getApp();
@@ -91,15 +90,9 @@ const createPVPBoss = () => {
 
 const getRandomPassword = () => PASSWORD_POOL[Math.floor(Math.random() * PASSWORD_POOL.length)];
 
-// Reconstruct boss object with systemPrompt function and avatar from serialized data
 const reconstructBoss = (serializableBoss) => {
     if (!serializableBoss) return null;
-
-    // Find the original character definition
     const originalChar = CHARACTERS.find(c => c.id === serializableBoss.id);
-
-    // Return serializable data with systemPrompt function and avatar restored from original
-    // This is critical: Firebase serializes image imports to string paths, so we restore from original
     return {
         ...serializableBoss,
         systemPrompt: originalChar ? originalChar.systemPrompt : (p) => `You are ${serializableBoss.name}. Password: ${p}.`,
@@ -191,37 +184,29 @@ const ScoreBoard = ({ player1Score, player2Score, currentRound, player1Name, pla
 const ChatMessage = ({ msg, char, player1Name, player2Name, myPlayerNumber }) => {
     const isUser = msg.role === 'user';
     const playerNum = msg.player;
-    const isOpponent = playerNum !== myPlayerNumber;
 
     return (
         <div className={`pvp-chat-message ${isUser ? 'user' : 'assistant'}`}>
-            {!isUser && (
-                <div className="chat-avatar assistant-avatar">
-                    {shouldRenderAsImage(char.avatar) ? <img src={char.avatar} alt={char.name} /> : char.avatar}
-                </div>
-            )}
+            <div className="chat-avatar">
+                {isUser ? (
+                    <img src={playerNum === myPlayerNumber ? playerLogo : opponentLogo} alt="Player" />
+                ) : (
+                    shouldRenderAsImage(char.avatar) ? <img src={char.avatar} alt={char.name} /> : <span style={{ fontSize: '32px' }}>{char.avatar}</span>
+                )}
+            </div>
             <div className={`chat-bubble ${isUser ? 'user-bubble' : 'assistant-bubble'}`}>
                 <p className="chat-author">
                     {isUser ? (playerNum === 1 ? (player1Name || 'Player 1') : (player2Name || 'Player 2')) : char.name}
                 </p>
                 <p className="chat-content">{msg.content}</p>
             </div>
-            {isUser && (
-                <div className={`chat-avatar user-avatar player-${playerNum}`}>
-                    <img src={isOpponent ? opponentLogo : playerLogo} alt="Player" />
-                </div>
-            )}
         </div>
     );
 };
 
-// Helper function to check if avatar should be rendered as an image vs emoji
 const shouldRenderAsImage = (avatar) => {
-    // If it's not a string, it's an image import object
     if (typeof avatar !== 'string') return true;
-    // If it contains a path separator or is a URL, it's an image path
     if (avatar.includes('/') || avatar.startsWith('http') || avatar.startsWith('data:') || avatar.includes('.png')) return true;
-    // Otherwise it's an emoji (short string like "🛡️")
     return false;
 };
 
@@ -258,41 +243,74 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
     const [myPlayerNumber, setMyPlayerNumber] = useState(null);
     const [gameData, setGameData] = useState(null);
     const [opponentLeft, setOpponentLeft] = useState(false);
+    const [isSearchingMatch, setIsSearchingMatch] = useState(false);
 
     const chatContainerRef = useRef(null);
     const gameRoomRef = useRef(null);
     const db = useRef(null);
     const disconnectRef = useRef(null);
+    const matchmakingUnsubscribe = useRef(null);
 
-    // Initialize Firebase
     useEffect(() => {
         db.current = initFirebase();
     }, []);
 
-    // Setup disconnect handler
     const setupDisconnectHandler = (playerNumber) => {
         if (!gameRoomRef.current) return;
-
         const playerConnectedField = playerNumber === 1 ? 'player1Connected' : 'player2Connected';
         const playerRef = ref(db.current, `rooms/${roomCode}/${playerConnectedField}`);
-
-        // Set up onDisconnect to mark player as disconnected
         disconnectRef.current = onDisconnect(playerRef);
         disconnectRef.current.set(false);
     };
 
     // ============================================
-    // ROOM MANAGEMENT
+    // MATCHMAKING SYSTEM
     // ============================================
-    const createRoom = async () => {
+    const startMatchmaking = async () => {
+        setIsSearchingMatch(true);
+
+        const matchmakingRef = ref(db.current, 'matchmaking');
+
+        // Listen for available matchmaking rooms
+        matchmakingUnsubscribe.current = onValue(matchmakingRef, async (snapshot) => {
+            const data = snapshot.val();
+
+            if (data) {
+                const availableRooms = Object.entries(data).filter(([id, room]) =>
+                    room.status === 'waiting' && room.player1Name !== username
+                );
+
+                if (availableRooms.length > 0) {
+                    // Join the first available room
+                    const [matchId, matchData] = availableRooms[0];
+                    await joinMatchmakingRoom(matchData.roomId);
+
+                    // Remove from matchmaking queue
+                    await remove(ref(db.current, `matchmaking/${matchId}`));
+
+                    if (matchmakingUnsubscribe.current) {
+                        matchmakingUnsubscribe.current();
+                        matchmakingUnsubscribe.current = null;
+                    }
+                    setIsSearchingMatch(false);
+                }
+            }
+        });
+
+        // If no room found after listening, create one
+        setTimeout(async () => {
+            if (isSearchingMatch) {
+                await createMatchmakingRoom();
+            }
+        }, 1000);
+    };
+
+    const createMatchmakingRoom = async () => {
         try {
             const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
             const boss = createPVPBoss();
             const password = getRandomPassword();
 
-            console.log('Creating room with ID:', roomId);
-
-            // Store only serializable boss data (no functions, no undefined values)
             const serializableBoss = {
                 id: boss.id,
                 name: boss.name,
@@ -304,7 +322,6 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
                 hasHint: boss.hasHint
             };
 
-            // Only add hint if it exists (not undefined)
             if (boss.hint !== undefined) {
                 serializableBoss.hint = Array.isArray(boss.hint) ? boss.hint[0] : boss.hint;
             }
@@ -329,19 +346,135 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
                 lastUpdate: Date.now()
             };
 
-            console.log('Initial game data:', initialGameData);
-
             const roomRef = ref(db.current, `rooms/${roomId}`);
             await set(roomRef, initialGameData);
 
-            console.log('Room created successfully');
+            // Add to matchmaking queue
+            const matchmakingEntry = {
+                roomId,
+                player1Name: username || 'Player 1',
+                status: 'waiting',
+                createdAt: Date.now()
+            };
+            await push(ref(db.current, 'matchmaking'), matchmakingEntry);
+
+            setRoomCode(roomId);
+            setMyPlayerNumber(1);
+            setGameState('searching');
+            gameRoomRef.current = roomRef;
+            setupDisconnectHandler(1);
+        } catch (error) {
+            console.error('Error creating matchmaking room:', error);
+            setIsSearchingMatch(false);
+            alert('Failed to start matchmaking. Please try again.');
+        }
+    };
+
+    const joinMatchmakingRoom = async (roomId) => {
+        const roomRef = ref(db.current, `rooms/${roomId}`);
+
+        onValue(roomRef, (snapshot) => {
+            const data = snapshot.val();
+
+            if (data && !data.player2Connected) {
+                update(roomRef, {
+                    player2Connected: true,
+                    player2Name: username || 'Player 2',
+                    gameState: 'playing'
+                });
+
+                setRoomCode(roomId);
+                setMyPlayerNumber(2);
+                setGameState('playing');
+                gameRoomRef.current = roomRef;
+                setupDisconnectHandler(2);
+            }
+        }, { onlyOnce: true });
+    };
+
+    const cancelMatchmaking = async () => {
+        setIsSearchingMatch(false);
+
+        if (matchmakingUnsubscribe.current) {
+            matchmakingUnsubscribe.current();
+            matchmakingUnsubscribe.current = null;
+        }
+
+        // Remove from matchmaking queue
+        const matchmakingRef = ref(db.current, 'matchmaking');
+        onValue(matchmakingRef, async (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                for (const [id, match] of Object.entries(data)) {
+                    if (match.roomId === roomCode) {
+                        await remove(ref(db.current, `matchmaking/${id}`));
+                        break;
+                    }
+                }
+            }
+        }, { onlyOnce: true });
+
+        // Clean up room if created
+        if (gameRoomRef.current) {
+            await remove(gameRoomRef.current);
+        }
+
+        setGameState('lobby');
+        setRoomCode('');
+        setMyPlayerNumber(null);
+    };
+
+    // ============================================
+    // ROOM MANAGEMENT (Private Rooms)
+    // ============================================
+    const createRoom = async () => {
+        try {
+            const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const boss = createPVPBoss();
+            const password = getRandomPassword();
+
+            const serializableBoss = {
+                id: boss.id,
+                name: boss.name,
+                role: boss.role,
+                avatar: typeof boss.avatar === 'string' ? boss.avatar : boss.avatar?.toString(),
+                owasp: boss.owasp,
+                vulnerability: boss.vulnerability,
+                difficulty: boss.difficulty,
+                hasHint: boss.hasHint
+            };
+
+            if (boss.hint !== undefined) {
+                serializableBoss.hint = Array.isArray(boss.hint) ? boss.hint[0] : boss.hint;
+            }
+
+            const initialGameData = {
+                roomId,
+                currentPlayer: 1,
+                player1Score: 0,
+                player2Score: 0,
+                currentRound: 1,
+                currentBoss: serializableBoss,
+                currentPassword: password,
+                chatHistory: [],
+                turnTimer: TURN_TIME,
+                guessTimer: 0,
+                isGuessingPhase: false,
+                gameState: 'waiting',
+                player1Connected: true,
+                player2Connected: false,
+                player1Name: username || 'Player 1',
+                player2Name: null,
+                lastUpdate: Date.now()
+            };
+
+            const roomRef = ref(db.current, `rooms/${roomId}`);
+            await set(roomRef, initialGameData);
 
             setRoomCode(roomId);
             setMyPlayerNumber(1);
             setGameState('waiting');
             gameRoomRef.current = roomRef;
-
-            // Setup disconnect handler
             setupDisconnectHandler(1);
         } catch (error) {
             console.error('Error creating room:', error);
@@ -357,16 +490,12 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
             return;
         }
 
-        console.log('Attempting to join room:', roomId);
-
         const roomRef = ref(db.current, `rooms/${roomId}`);
 
         onValue(roomRef, (snapshot) => {
             const data = snapshot.val();
-            console.log('Room data:', data);
 
             if (data && !data.player2Connected) {
-                console.log('Joining room as Player 2');
                 update(roomRef, {
                     player2Connected: true,
                     player2Name: username || 'Player 2',
@@ -377,8 +506,6 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
                 setMyPlayerNumber(2);
                 setGameState('playing');
                 gameRoomRef.current = roomRef;
-
-                // Setup disconnect handler
                 setupDisconnectHandler(2);
             } else if (!data) {
                 alert('Room not found!');
@@ -394,30 +521,21 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
     useEffect(() => {
         if (!gameRoomRef.current) return;
 
-        console.log('Setting up game state listener');
-
         const unsubscribe = onValue(gameRoomRef.current, (snapshot) => {
             const data = snapshot.val();
-            console.log('Game state updated:', data);
 
             if (data) {
-                // Ensure chatHistory is always an array
                 if (!data.chatHistory || !Array.isArray(data.chatHistory)) {
-                    console.warn('chatHistory is not an array, setting to empty array');
                     data.chatHistory = [];
                 }
 
                 setGameData(data);
 
-                // Check if opponent disconnected during an active game
                 if (data.gameState === 'playing' && myPlayerNumber) {
                     const opponentConnected = myPlayerNumber === 1 ? data.player2Connected : data.player1Connected;
 
                     if (!opponentConnected) {
-                        console.log('Opponent disconnected!');
                         setOpponentLeft(true);
-
-                        // Award win to remaining player
                         const winnerScore = myPlayerNumber === 1 ? 'player1Score' : 'player2Score';
                         update(gameRoomRef.current, {
                             [winnerScore]: WINS_NEEDED,
@@ -427,8 +545,9 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
                     }
                 }
 
-                if (data.gameState === 'playing' && gameState === 'waiting') {
+                if (data.gameState === 'playing' && (gameState === 'waiting' || gameState === 'searching')) {
                     setGameState('playing');
+                    setIsSearchingMatch(false);
                 }
             }
         });
@@ -493,8 +612,6 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
         if (!userInput || !gameData || gameData.isGuessingPhase) return;
         if (gameData.currentPlayer !== myPlayerNumber) return;
 
-        console.log('Submitting message:', userInput);
-
         const userMessage = {
             role: 'user',
             content: userInput,
@@ -506,7 +623,6 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
             chatHistory: newHistory
         });
 
-        // Reconstruct boss with systemPrompt function
         const fullBoss = reconstructBoss(gameData.currentBoss);
 
         const response = await GeminiService.callAPI(
@@ -516,8 +632,6 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
             gameData.chatHistory || [],
             userInput
         );
-
-        console.log('AI response:', response);
 
         const aiMessage = { role: 'assistant', content: response };
         await update(gameRoomRef.current, {
@@ -532,10 +646,7 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
         if (!gameData || !gameData.isGuessingPhase) return;
         if (gameData.currentPlayer !== myPlayerNumber) return;
 
-        console.log('Password guess:', passwordGuess);
-
         if (passwordGuess.trim().toUpperCase() === gameData.currentPassword.toUpperCase()) {
-            console.log('Correct password!');
             const winner = myPlayerNumber;
             const newP1Score = winner === 1 ? gameData.player1Score + 1 : gameData.player1Score;
             const newP2Score = winner === 2 ? gameData.player2Score + 1 : gameData.player2Score;
@@ -551,7 +662,6 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
                 const boss = createPVPBoss();
                 const password = getRandomPassword();
 
-                // Serialize boss for Firebase (no functions, no undefined values)
                 const serializableBoss = {
                     id: boss.id,
                     name: boss.name,
@@ -563,7 +673,6 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
                     hasHint: boss.hasHint
                 };
 
-                // Only add hint if it exists
                 if (boss.hint !== undefined) {
                     serializableBoss.hint = Array.isArray(boss.hint) ? boss.hint[0] : boss.hint;
                 }
@@ -583,7 +692,6 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
                 });
             }
         } else {
-            console.log('Wrong password');
             await update(gameRoomRef.current, {
                 currentPlayer: gameData.currentPlayer === 1 ? 2 : 1,
                 turnTimer: TURN_TIME,
@@ -595,20 +703,17 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
     };
 
     const leaveRoom = async () => {
-        // Cancel disconnect handler
         if (disconnectRef.current) {
             disconnectRef.current.cancel();
         }
 
         if (gameRoomRef.current && myPlayerNumber) {
-            // Mark player as disconnected
             const playerConnectedField = myPlayerNumber === 1 ? 'player1Connected' : 'player2Connected';
             await update(gameRoomRef.current, {
                 [playerConnectedField]: false
             });
 
-            // If in lobby/waiting, delete the room
-            if (gameState === 'lobby' || gameState === 'waiting') {
+            if (gameState === 'lobby' || gameState === 'waiting' || gameState === 'searching') {
                 await remove(gameRoomRef.current);
             }
         }
@@ -618,10 +723,18 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
         setMyPlayerNumber(null);
         setGameData(null);
         setOpponentLeft(false);
+        setIsSearchingMatch(false);
     };
 
+    // Auto-scroll chat
+    useEffect(() => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+    }, [gameData?.chatHistory]);
+
     // ============================================
-    // RENDER
+    // RENDER: LOBBY
     // ============================================
     if (gameState === 'lobby') {
         return (
@@ -631,37 +744,95 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
                         <img src={pvpLogo} alt="PVP" style={{ width: '70px', height: '70px', verticalAlign: 'middle', marginRight: '12px' }} />
                         <span className="pvp-title-red">Multiplayer</span> <span className="pvp-title-white">PVP</span>
                     </h1>
-                    <p className="pvp-subtitle">Play against another player in real-time!</p>
+                    <p className="pvp-subtitle">Challenge players in real-time prompt battles!</p>
 
-                    <div className="pvp-button-group" style={{ flexDirection: 'column', gap: '20px', maxWidth: '400px', margin: '0 auto' }}>
-                        <button onClick={createRoom} className="pvp-start-button">
-                            Create Room (Be Player 1)
-                        </button>
-
-                        <div style={{ width: '100%' }}>
-                            <input
-                                type="text"
-                                value={roomCodeInput}
-                                onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
-                                placeholder="Enter room code..."
-                                style={{
-                                    width: '100%',
-                                    padding: '12px',
-                                    fontSize: '16px',
-                                    marginBottom: '10px',
-                                    borderRadius: '8px',
-                                    border: '2px solid #475569',
-                                    background: '#334155',
-                                    color: 'white'
-                                }}
-                            />
-                            <button onClick={joinRoom} className="pvp-start-button">
-                                Join Room (Be Player 2)
+                    <div className="pvp-mode-selector">
+                        {/* Matchmaking Option */}
+                        <div className="mode-card featured">
+                            <div className="mode-header">
+                                <span className="mode-icon">🎯</span>
+                                <h3>Quick Match</h3>
+                                <span className="featured-badge">Popular</span>
+                            </div>
+                            <p className="mode-description">
+                                Get matched with an opponent instantly. Fast and competitive!
+                            </p>
+                            <button onClick={startMatchmaking} className="mode-button primary">
+                                🔍 Find Opponent
                             </button>
                         </div>
 
-                        <button onClick={onBack} className="pvp-back-button">
-                            Back to Menu
+                        {/* Private Room Option */}
+                        <div className="mode-card">
+                            <div className="mode-header">
+                                <span className="mode-icon">🔒</span>
+                                <h3>Private Room</h3>
+                            </div>
+                            <p className="mode-description">
+                                Create a private room and share the code with a friend.
+                            </p>
+                            <button onClick={createRoom} className="mode-button">
+                                ➕ Create Room
+                            </button>
+                        </div>
+
+                        {/* Join Room Option */}
+                        <div className="mode-card">
+                            <div className="mode-header">
+                                <span className="mode-icon">🚪</span>
+                                <h3>Join Room</h3>
+                            </div>
+                            <p className="mode-description">
+                                Enter a room code to join your friend's game.
+                            </p>
+                            <div className="join-room-form">
+                                <input
+                                    type="text"
+                                    value={roomCodeInput}
+                                    onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
+                                    placeholder="Enter code..."
+                                    className="room-code-input"
+                                    maxLength={6}
+                                />
+                                <button onClick={joinRoom} className="mode-button">
+                                    Join
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onClick={onBack} className="pvp-back-button">
+                        ← Back to Menu
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // ============================================
+    // RENDER: SEARCHING FOR MATCH
+    // ============================================
+    if (gameState === 'searching') {
+        return (
+            <div className="pvp-container">
+                <div className="pvp-setup">
+                    <div className="searching-animation">
+                        <div className="search-spinner"></div>
+                        <h1 className="searching-title">
+                            <img src={timerLogo} alt="Timer" style={{ width: '40px', height: '40px', verticalAlign: 'middle', marginRight: '12px' }} />
+                            Finding Opponent...
+                        </h1>
+                        <p className="searching-subtitle">Searching for a worthy challenger</p>
+                        <div className="loading-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+
+                    <div className="pvp-button-group">
+                        <button onClick={cancelMatchmaking} className="pvp-back-button">
+                            Cancel Search
                         </button>
                     </div>
                 </div>
@@ -669,6 +840,9 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
         );
     }
 
+    // ============================================
+    // RENDER: WAITING FOR PLAYER 2
+    // ============================================
     if (gameState === 'waiting') {
         return (
             <div className="pvp-container">
@@ -677,8 +851,11 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
                         <img src={timerLogo} alt="Timer" style={{ width: '40px', height: '40px', verticalAlign: 'middle', marginRight: '12px' }} />
                         Waiting for Player 2...
                     </h1>
-                    <p className="pvp-subtitle">Room Code: <strong style={{ fontSize: '32px', color: '#fbbf24' }}>{roomCode}</strong></p>
-                    <p style={{ fontSize: '18px', marginTop: '20px' }}>Share this code with your opponent!</p>
+                    <div className="room-code-display">
+                        <p className="room-code-label">Share this code:</p>
+                        <div className="room-code-box">{roomCode}</div>
+                    </div>
+                    <p className="waiting-instruction">Send this code to your friend to start the game!</p>
 
                     <div className="pvp-button-group">
                         <button onClick={leaveRoom} className="pvp-back-button">
@@ -690,6 +867,9 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
         );
     }
 
+    // ============================================
+    // RENDER: OPPONENT LEFT
+    // ============================================
     if (gameState === 'opponent_left') {
         return (
             <div className="pvp-container">
@@ -717,6 +897,9 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
         );
     }
 
+    // ============================================
+    // RENDER: GAME END
+    // ============================================
     if (gameState === 'game_end' && gameData) {
         const winner = gameData.player1Score >= WINS_NEEDED ? 1 : 2;
         const winnerName = winner === 1 ? (gameData.player1Name || 'Player 1') : (gameData.player2Name || 'Player 2');
@@ -751,8 +934,10 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
         );
     }
 
+    // ============================================
+    // RENDER: LOADING
+    // ============================================
     if (!gameData) {
-        console.log('Waiting for game data...');
         return (
             <div className="pvp-container">
                 <div className="pvp-setup">
@@ -762,8 +947,9 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
         );
     }
 
-    console.log('Rendering game with data:', gameData);
-
+    // ============================================
+    // RENDER: PLAYING GAME
+    // ============================================
     return (
         <div className="pvp-container">
             <div className="pvp-game">
@@ -841,7 +1027,9 @@ export default function PVPModeMultiplayer({ onBack, geminiApiKey, username }) {
     );
 }
 
-// Helper components
+// ============================================
+// HELPER COMPONENTS
+// ============================================
 const PasswordGuesserComponent = ({ onGuess, guessTimer }) => {
     const [passwordGuess, setPasswordGuess] = useState('');
 
@@ -891,9 +1079,7 @@ const ChatPanelComponent = ({ gameData, myPlayerNumber, onSubmit, chatContainerR
         }
     };
 
-    // Add safety checks for undefined data
     if (!gameData || !gameData.currentBoss) {
-        console.log('ChatPanel: Missing gameData or currentBoss');
         return (
             <div className="pvp-chat-panel">
                 <div className="pvp-chat-messages">
@@ -905,12 +1091,8 @@ const ChatPanelComponent = ({ gameData, myPlayerNumber, onSubmit, chatContainerR
         );
     }
 
-    // Reconstruct the boss to get the proper avatar (not the serialized string path)
     const reconstructedBoss = reconstructBoss(gameData.currentBoss);
-
-    // Ensure chatHistory is always an array
     const chatHistory = Array.isArray(gameData.chatHistory) ? gameData.chatHistory : [];
-    console.log('ChatPanel: Rendering with', chatHistory.length, 'messages');
 
     return (
         <div className="pvp-chat-panel">

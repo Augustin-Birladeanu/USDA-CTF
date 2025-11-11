@@ -1,5 +1,5 @@
 /* ============================================
-   PVP MODE STYLES
+   PVP MODE STYLES - IMPROVED
    ============================================ */
 
 .pvp-container {
@@ -13,7 +13,7 @@
    SETUP SCREEN
    ============================================ */
 .pvp-setup {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
     text-align: center;
 }
@@ -39,41 +39,275 @@
 
 .pvp-subtitle {
     font-size: 24px;
-    color: white;
+    color: #9ca3af;
     margin-bottom: 48px;
 }
 
-.pvp-rules {
-    background: #1e293b;
-    border-radius: 12px;
-    padding: 32px;
-    border: 2px solid #334155;
-    margin-bottom: 32px;
-    text-align: left;
+/* ============================================
+   MODE SELECTOR CARDS
+   ============================================ */
+.pvp-mode-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.pvp-rules h3 {
+.mode-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 16px;
+    padding: 32px 24px;
+    border: 2px solid #334155;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.mode-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff3333, #ff6b6b);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.mode-card > * {
+    position: relative;
+    z-index: 2;
+}
+
+.mode-card:hover {
+    border-color: #ff3333;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(255, 51, 51, 0.3);
+}
+
+.mode-card:hover::before {
+    opacity: 1;
+}
+
+.mode-card.featured {
+    border-color: #ff3333;
+    box-shadow: 0 4px 16px rgba(255, 51, 51, 0.2);
+}
+
+.mode-card.featured::before {
+    opacity: 1;
+}
+
+.mode-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
+}
+
+.mode-icon {
+    font-size: 36px;
+}
+
+.mode-header h3 {
     font-size: 24px;
+    color: white;
+    margin: 0;
+    flex: 1;
+}
+
+.featured-badge {
+    background: #ff3333;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.mode-description {
+    color: #9ca3af;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    min-height: 48px;
+}
+
+.mode-button {
+    width: 100%;
+    background: #334155;
+    color: white;
+    padding: 14px 24px;
+    border-radius: 12px;
+    border: 2px solid #475569;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    z-index: 10;
+}
+
+.mode-button:hover {
+    background: #475569;
+    border-color: #64748b;
+    transform: translateY(-2px);
+}
+
+.mode-button.primary {
+    background: #ff3333;
+    border-color: #ff3333;
+}
+
+.mode-button.primary:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
+.join-room-form {
+    display: flex;
+    gap: 8px;
+    position: relative;
+    z-index: 10;
+}
+
+.room-code-input {
+    flex: 1;
+    background: #0f172a;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 2px solid #334155;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-align: center;
+    text-transform: uppercase;
+    outline: none;
+    transition: all 0.2s;
+    position: relative;
+    z-index: 10;
+}
+
+.room-code-input:focus {
+    border-color: #ff3333;
+    background: #1e293b;
+}
+
+.room-code-input::placeholder {
+    color: #64748b;
+    letter-spacing: normal;
+}
+
+/* ============================================
+   SEARCHING/MATCHMAKING SCREEN
+   ============================================ */
+.searching-animation {
+    margin: 64px 0;
+}
+
+.search-spinner {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 32px;
+    border: 4px solid #334155;
+    border-top-color: #ff3333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.searching-title {
+    font-size: 36px;
     color: #ff3333;
     margin-bottom: 16px;
 }
 
-.pvp-rules ul {
-    list-style: none;
-    padding: 0;
+.searching-subtitle {
+    font-size: 18px;
+    color: #9ca3af;
+    margin-bottom: 24px;
 }
 
-.pvp-rules li {
-    font-size: 16px;
-    color: #e5e7eb;
-    margin-bottom: 12px;
-    padding-left: 8px;
+.loading-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.loading-dots span {
+    width: 12px;
+    height: 12px;
+    background: #ff3333;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+
+/* ============================================
+   WAITING ROOM
+   ============================================ */
+.room-code-display {
+    margin: 48px 0;
+}
+
+.room-code-label {
+    font-size: 20px;
+    color: #9ca3af;
+    margin-bottom: 16px;
+}
+
+.room-code-box {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 3px solid #ff3333;
+    border-radius: 16px;
+    padding: 24px;
+    font-size: 48px;
+    font-weight: bold;
+    color: #ff3333;
+    letter-spacing: 8px;
+    display: inline-block;
+    min-width: 300px;
+    box-shadow: 0 0 32px rgba(255, 51, 51, 0.3);
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 32px rgba(255, 51, 51, 0.3); }
+    50% { box-shadow: 0 0 48px rgba(255, 51, 51, 0.5); }
+}
+
+.waiting-instruction {
+    font-size: 18px;
+    color: #9ca3af;
+    margin-top: 24px;
 }
 
 .pvp-button-group {
     display: flex;
     gap: 16px;
     justify-content: center;
+    margin-top: 32px;
 }
 
 .pvp-start-button {
@@ -85,11 +319,11 @@
     font-size: 20px;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
+    transition: all 0.2s;
 }
 
 .pvp-start-button:hover {
-    background: #ff3333;
+    background: #dc2626;
     transform: scale(1.05);
 }
 
@@ -98,15 +332,16 @@
     color: white;
     padding: 16px 48px;
     border-radius: 12px;
-    border: none;
-    font-size: 20px;
+    border: 2px solid #475569;
+    font-size: 18px;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 
 .pvp-back-button:hover {
     background: #475569;
+    border-color: #64748b;
 }
 
 /* ============================================
@@ -119,20 +354,21 @@
 }
 
 .winner-announcement {
-    background: #1e293b;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 16px;
     padding: 64px 32px;
     border: 3px solid #ff3333;
     margin-bottom: 32px;
+    box-shadow: 0 8px 32px rgba(255, 51, 51, 0.3);
 }
 
 .trophy-icon {
     font-size: 120px;
     margin-bottom: 24px;
-    animation: bounce 2s infinite;
+    animation: bounce-trophy 2s infinite;
 }
 
-@keyframes bounce {
+@keyframes bounce-trophy {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
 }
@@ -165,24 +401,7 @@
 
 .vs-divider {
     font-size: 36px;
-    color: #9ca3af;
-}
-
-.pvp-rematch-button {
-    background: #ff3333;
-    color: white;
-    padding: 16px 48px;
-    border-radius: 12px;
-    border: none;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
-}
-
-.pvp-rematch-button:hover {
-    background: #ff3333;
-    transform: scale(1.05);
+    color: #64748b;
 }
 
 /* ============================================
@@ -206,20 +425,22 @@
     left: 0;
     background: #334155;
     color: white;
-    padding: 8px 16px;
+    padding: 10px 20px;
     border-radius: 8px;
     border: none;
     cursor: pointer;
     font-size: 14px;
-    transition: background 0.2s;
+    font-weight: 600;
+    transition: all 0.2s;
 }
 
 .pvp-back-small:hover {
     background: #475569;
+    transform: translateX(-2px);
 }
 
 .pvp-mode-title {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: bold;
     color: #ff3333;
 }
@@ -231,7 +452,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #1e293b;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     border-radius: 12px;
     padding: 24px;
     border: 2px solid #334155;
@@ -242,7 +463,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .player-icon {
@@ -250,19 +471,19 @@
 }
 
 .player-icon img {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
     object-fit: contain;
 }
 
 .player-name {
     font-size: 18px;
     font-weight: bold;
-    color: #ff3333;
+    color: white;
 }
 
 .player-score {
-    font-size: 36px;
+    font-size: 42px;
     font-weight: bold;
     color: #ff3333;
 }
@@ -272,46 +493,39 @@
 }
 
 .round-text {
-    font-size: 24px;
+    font-size: 26px;
     font-weight: bold;
     color: #ff3333;
 }
 
 .round-subtitle {
     font-size: 14px;
-    color: #9ca3af;
-    margin-top: 4px;
+    color: #64748b;
+    margin-top: 6px;
 }
 
 /* ============================================
    TURN INDICATOR
    ============================================ */
 .turn-indicator {
-    background: #1e293b;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     border-radius: 12px;
     padding: 16px 24px;
     border: 2px solid #ff3333;
     margin-bottom: 24px;
+    box-shadow: 0 0 24px rgba(255, 51, 51, 0.2);
     transition: all 0.3s;
-}
-
-.turn-indicator.player-1-turn {
-    border-color: #ff3333;
-}
-
-.turn-indicator.player-2-turn {
-    border-color: #ff3333;
 }
 
 .turn-content {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 16px;
 }
 
 .turn-icon {
-    font-size: 32px;
+    font-size: 36px;
 }
 
 .turn-icon img {
@@ -321,7 +535,7 @@
 }
 
 .turn-text {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
     color: #ff3333;
 }
@@ -351,7 +565,7 @@
 }
 
 .pvp-character-display {
-    background: #1e293b;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     border-radius: 12px;
     padding: 24px;
     border: 2px solid #334155;
@@ -381,7 +595,7 @@
 
 .character-role {
     font-size: 14px;
-    color: #e5e7eb;
+    color: #9ca3af;
     margin-bottom: 16px;
 }
 
@@ -429,10 +643,11 @@
    PASSWORD GUESSER
    ============================================ */
 .pvp-password-guesser {
-    background: #1e293b;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     border-radius: 12px;
     padding: 20px;
-    border: 2px solid #334155;
+    border: 2px solid #ff3333;
+    box-shadow: 0 0 24px rgba(255, 51, 51, 0.2);
 }
 
 .guess-title {
@@ -450,40 +665,25 @@
     font-weight: bold;
 }
 
-.priority-notice.open-guess {
-    color: #22c55e;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-}
-
 .password-input-group {
     display: flex;
     gap: 8px;
-    margin-bottom: 12px;
 }
 
 .password-input {
     flex: 1;
-    background: #334155;
+    background: #0f172a;
     color: white;
     padding: 12px 16px;
     border-radius: 8px;
-    border: 1px solid #475569;
+    border: 2px solid #334155;
     outline: none;
     font-size: 16px;
+    transition: all 0.2s;
 }
 
 .password-input:focus {
     border-color: #ff3333;
-}
-
-.password-input:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 .password-button {
@@ -494,10 +694,11 @@
     border: none;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
+    transition: all 0.2s;
 }
 
 .password-button:hover:not(:disabled) {
+    background: #dc2626;
     transform: scale(1.05);
 }
 
@@ -506,35 +707,21 @@
     cursor: not-allowed;
 }
 
-.guess-message {
-    text-align: center;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.guess-message.success {
-    color: #22c55e;
-}
-
-.guess-message.error {
-    color: #ff3333;
-}
-
 /* ============================================
    TIMER
    ============================================ */
 .pvp-timer {
-    background: #1e293b;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     border-radius: 12px;
     padding: 20px;
-    border: 2px solid #475569;
+    border: 2px solid #334155;
     text-align: center;
     transition: all 0.3s;
 }
 
 .pvp-timer.active {
     border-color: #ff3333;
-    box-shadow: 0 0 20px rgba(255, 51, 51, 0.3);
+    box-shadow: 0 0 24px rgba(255, 51, 51, 0.3);
 }
 
 .timer-label {
@@ -553,7 +740,7 @@
    CHAT PANEL
    ============================================ */
 .pvp-chat-panel {
-    background: #1e293b;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     border-radius: 12px;
     border: 2px solid #334155;
     display: flex;
@@ -562,32 +749,37 @@
 }
 
 .pvp-chat-header {
-    background: #1e293b;
-    padding: 16px;
+    background: rgba(15, 23, 42, 0.5);
+    padding: 20px;
     border-bottom: 2px solid #334155;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     border-radius: 10px 10px 0 0;
 }
 
 .chat-header-avatar {
     font-size: 60px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(255, 51, 51, 0.2);
+    border-radius: 50%;
+    border: 2px solid #ff3333;
 }
 
 .chat-header-avatar img {
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
     object-fit: contain;
 }
 
 .chat-header-name {
     font-weight: bold;
     color: #ff3333;
-    font-size: 20px;
+    font-size: 22px;
 }
 
 .chat-header-role {
@@ -596,12 +788,33 @@
 }
 
 /* ============================================
-   CHAT MESSAGES
+   CHAT MESSAGES - IMPROVED
    ============================================ */
 .pvp-chat-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pvp-chat-messages::-webkit-scrollbar {
+    width: 8px;
+}
+
+.pvp-chat-messages::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5);
+    border-radius: 4px;
+}
+
+.pvp-chat-messages::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+
+.pvp-chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #475569;
 }
 
 .chat-empty {
@@ -635,23 +848,24 @@
     margin-top: 8px;
 }
 
+/* Chat Message Layout - Improved */
 .pvp-chat-message {
     display: flex;
     gap: 12px;
-    margin-bottom: 16px;
+    align-items: flex-start;
 }
 
 .pvp-chat-message.user {
-    justify-content: flex-end;
+    flex-direction: row-reverse;
 }
 
 .pvp-chat-message.assistant {
-    justify-content: flex-start;
+    flex-direction: row;
 }
 
 .chat-avatar {
-    width: 60px;
-    height: 60px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -659,6 +873,8 @@
     font-size: 24px;
     flex-shrink: 0;
     overflow: hidden;
+    background: rgba(255, 51, 51, 0.2);
+    border: 2px solid rgba(255, 51, 51, 0.5);
 }
 
 .chat-avatar img {
@@ -667,83 +883,48 @@
     object-fit: cover;
 }
 
-.chat-avatar.user-avatar img {
-    width: 56px;
-    height: 56px;
-    object-fit: contain;
-}
-
-.assistant-avatar {
-    background: #ff3333;
-}
-
-.user-avatar {
-    background: #ff3333;
-}
-
-.user-avatar.player-1 {
-    background: #ff3333;
-}
-
-.user-avatar.player-2 {
-    background: #ff3333;
-}
-
 .chat-bubble {
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 16px;
+    padding: 12px 16px;
     max-width: 70%;
+    word-wrap: break-word;
 }
 
 .user-bubble {
     background: rgba(255, 51, 51, 0.2);
     border: 1px solid #ff3333;
-    margin-left: auto;
+    border-top-right-radius: 4px;
 }
 
 .assistant-bubble {
-    background: #334155;
+    background: rgba(51, 65, 85, 0.5);
     border: 1px solid #475569;
+    border-top-left-radius: 4px;
 }
 
 .chat-author {
     font-size: 12px;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     opacity: 0.85;
+    color: #ff3333;
 }
 
 .chat-content {
     font-size: 14px;
     white-space: pre-wrap;
     word-break: break-word;
-    line-height: 1.5;
-}
-
-.chat-loading {
-    display: flex;
-    justify-content: flex-start;
-}
-
-.loading-bubble {
-    background: #334155;
-    border-radius: 12px;
-    padding: 16px;
-    border: 1px solid #475569;
-}
-
-.loading-bubble p {
-    font-size: 14px;
-    color: #9ca3af;
+    line-height: 1.6;
+    color: white;
 }
 
 /* ============================================
    CHAT INPUT
    ============================================ */
 .pvp-chat-input-container {
-    padding: 16px;
+    padding: 20px;
     border-top: 2px solid #334155;
-    background: #000;
+    background: rgba(15, 23, 42, 0.5);
     border-radius: 0 0 10px 10px;
 }
 
@@ -755,13 +936,14 @@
 
 .chat-input {
     flex: 1;
-    background: #334155;
+    background: #0f172a;
     color: white;
-    padding: 12px 16px;
-    border-radius: 8px;
-    border: 1px solid #475569;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 2px solid #334155;
     outline: none;
     font-size: 14px;
+    transition: all 0.2s;
 }
 
 .chat-input:focus {
@@ -776,15 +958,16 @@
 .chat-send-button {
     background: #ff3333;
     color: white;
-    padding: 12px 32px;
-    border-radius: 8px;
+    padding: 14px 32px;
+    border-radius: 12px;
     border: none;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
+    transition: all 0.2s;
 }
 
 .chat-send-button:hover:not(:disabled) {
+    background: #dc2626;
     transform: scale(1.05);
 }
 
@@ -797,4 +980,22 @@
     font-size: 12px;
     color: #9ca3af;
     text-align: center;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .pvp-mode-selector {
+        grid-template-columns: 1fr;
+    }
+
+    .score-board {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .pvp-game-grid {
+        grid-template-columns: 1fr;
+    }
 }

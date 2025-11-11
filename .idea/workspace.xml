@@ -5,10 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="76236455-cc2e-4453-86d2-4332003a50ab" name="Changes" comment="Version 2.0">
-      <change afterPath="$PROJECT_DIR$/src/BotBuilder.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/BotBuilder.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/BotBuilder.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/BotBuilder.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/BotBuilder.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/BotBuilder.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PVPMode.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/PVPMode.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/PVPModeMultiplayer.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/PVPModeMultiplayer.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Leaderboard.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Leaderboard.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Leaderboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Leaderboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/data/characters.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/data/characters.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +47,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Augustin-Birladeanu/USDA-CTF.git&quot;,
-    &quot;accountId&quot;: &quot;22ea08e5-df1c-486f-baee-a796b3796b2e&quot;
+    &quot;accountId&quot;: &quot;fec3d3be-a96b-4247-bc99-13a62a152dba&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -52,25 +59,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "Development",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/federicogiudice/IdeaProjects/USDA-CTF NEW/.idea/assets",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Node.js.App.jsx.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Development&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/rahemkun/Downloads/hw3 (3)/USDA-CTFv2&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src" />
       <recent name="$PROJECT_DIR$/assets" />
@@ -80,11 +90,12 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26830.84" />
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.26830.84" />
+        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.23654.117" />
+        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-IU-243.23654.117" />
       </set>
     </attachedChunks>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="76236455-cc2e-4453-86d2-4332003a50ab" name="Changes" comment="" />
@@ -94,6 +105,8 @@
       <updated>1762393283050</updated>
       <workItem from="1762393284165" duration="973000" />
       <workItem from="1762394271053" duration="54000" />
+      <workItem from="1762826419552" duration="310000" />
+      <workItem from="1762826733569" duration="14037000" />
     </task>
     <task id="LOCAL-00001" summary="all stuff">
       <option name="closed" value="true" />

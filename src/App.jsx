@@ -3,15 +3,15 @@ import './App.css';
 import redteamLogo from './assets/redteam-logo.png';
 import storymodeLogo from './assets/storymode-logo.png';
 import endlessmodeLogo from './assets/endlessmode-logo.png';
-import worldLogo from './assets/world.webp';
+import builder from './assets/builderbotbutton.webp';
 import pvpmodeLogo from './assets/pvpmode-logo.png';
 import PVPModeMultiplayer from './PVPModeMultiplayer';
 import Leaderboard from './components/Leaderboard';
 import GameOverModal from './components/GameOverModal';
 import {HintSystem} from "./HintSystem.jsx";
 import { CHARACTERS } from './data/characters.js';
-
 import BotBuilder from './BotBuilder';
+import { getDatabase, ref, get, set } from 'firebase/database';
 
 // ============================================
 // CONSTANTS
@@ -39,9 +39,6 @@ const PASSWORD_POOL = [
     'MYSTERY', 'FORTUNE', 'MIRACLE', 'DESTINY', 'SERENITY'
 ];
 
-// ============================================
-// UTILITY FUNCTIONS
-// ============================================
 const getRandomPassword = () => PASSWORD_POOL[Math.floor(Math.random() * PASSWORD_POOL.length)];
 
 // ============================================
@@ -92,14 +89,13 @@ class GeminiService {
     }
 }
 
-// ============================================
-// COMPONENTS
-// ============================================
-// Create and export a global hint system with all levels
 // eslint-disable-next-line react-refresh/only-export-components
 export const hintSystem = new HintSystem(CHARACTERS);
 
-// VULNERABILITY MODAL COMPONENT (from File 1)
+// ============================================
+// COMPONENTS
+// ============================================
+
 const VulnerabilityModal = ({ isOpen, onClose, character }) => {
     useEffect(() => {
         const handleEscape = (e) => {
@@ -135,13 +131,10 @@ const VulnerabilityModal = ({ isOpen, onClose, character }) => {
                 <div className="modal-body">
                     <h3>Description</h3>
                     <p>{character.explanation}</p>
-
                     <h3>Why It's Dangerous</h3>
                     <p>{character.danger}</p>
-
                     <h3>Prevention</h3>
                     <p>{character.prevention}</p>
-
                     <h3>Tips for This Challenge</h3>
                     <p>{character.hint}</p>
                 </div>
@@ -156,21 +149,14 @@ const HintBox = ({ char }) => {
     const [showHint, setShowHint] = useState(false);
 
     const handleShowHint = () => {
-        if (!char || !char.id) return; // safety check
+        if (!char || !char.id) return;
         const nextHint = hintSystem.getNextHint(char.id);
         setCurrentHint(nextHint);
         setShowHint(true);
     };
 
     return (
-        <div
-            style={{
-                background: "#1e293b",
-                padding: "16px",
-                borderRadius: "8px",
-                marginTop: "16px",
-            }}
-        >
+        <div style={{ background: "#1e293b", padding: "16px", borderRadius: "8px", marginTop: "16px" }}>
             <button
                 onClick={() => setShowExplanation(!showExplanation)}
                 style={{
@@ -188,17 +174,15 @@ const HintBox = ({ char }) => {
             </button>
 
             {showExplanation && (
-                <div
-                    style={{
-                        marginTop: "12px",
-                        fontSize: "13px",
-                        color: "#cbd5e1",
-                        background: "#0f172a",
-                        padding: "12px",
-                        borderRadius: "4px",
-                        borderLeft: "3px solid #0891b2",
-                    }}
-                >
+                <div style={{
+                    marginTop: "12px",
+                    fontSize: "13px",
+                    color: "#cbd5e1",
+                    background: "#0f172a",
+                    padding: "12px",
+                    borderRadius: "4px",
+                    borderLeft: "3px solid #0891b2",
+                }}>
                     <h4 style={{ margin: "0 0 8px 0", color: "#0891b2" }}>
                         {char.owasp}: {char.vulnerability}
                     </h4>
@@ -230,17 +214,15 @@ const HintBox = ({ char }) => {
             </button>
 
             {showHint && (
-                <p
-                    style={{
-                        marginTop: "12px",
-                        fontSize: "14px",
-                        color: "#cbd5e1",
-                        background: "#0f172a",
-                        padding: "12px",
-                        borderRadius: "4px",
-                        borderLeft: "3px solid #059669",
-                    }}
-                >
+                <p style={{
+                    marginTop: "12px",
+                    fontSize: "14px",
+                    color: "#cbd5e1",
+                    background: "#0f172a",
+                    padding: "12px",
+                    borderRadius: "4px",
+                    borderLeft: "3px solid #059669",
+                }}>
                     {currentHint}
                 </p>
             )}
@@ -248,8 +230,6 @@ const HintBox = ({ char }) => {
     );
 };
 
-
-// ChatMessage Component
 const ChatMessage = ({ msg, char }) => {
     const isUser = msg.role === 'user';
     const isImage = typeof char.avatar === 'string' && (char.avatar.includes('.png') || char.avatar.includes('data:image'));
@@ -266,34 +246,21 @@ const ChatMessage = ({ msg, char }) => {
                 </div>
             )}
             <div className={`chat-bubble ${isUser ? 'user-bubble' : 'assistant-bubble'}`}>
-                <p className="chat-author">
-                    {isUser ? 'You' : char.name}
-                </p>
+                <p className="chat-author">{isUser ? 'You' : char.name}</p>
                 <p className="chat-content">{msg.content}</p>
             </div>
             {isUser && (
-                <div className="chat-avatar user-avatar">
-                    👤
-                </div>
+                <div className="chat-avatar user-avatar">👤</div>
             )}
         </div>
     );
 };
 
-// PasswordGuesser Component
-const PasswordGuesser = ({
-                             passwordGuess,
-                             setPasswordGuess,
-                             handlePasswordGuess,
-                             levelComplete,
-                             guessMessage
-                         }) => {
+const PasswordGuesser = ({ passwordGuess, setPasswordGuess, handlePasswordGuess, levelComplete, guessMessage }) => {
     return (
         <div className="password-guesser">
             <p className="password-title">🔓 Password Guessing Area</p>
-            <p className="password-subtitle">
-                Extract the password through conversation, then enter it here
-            </p>
+            <p className="password-subtitle">Extract the password through conversation, then enter it here</p>
             <div className="password-input-group">
                 <input
                     type="text"
@@ -304,11 +271,7 @@ const PasswordGuesser = ({
                     disabled={levelComplete}
                     className="password-input"
                 />
-                <button
-                    onClick={handlePasswordGuess}
-                    disabled={levelComplete}
-                    className="password-button"
-                >
+                <button onClick={handlePasswordGuess} disabled={levelComplete} className="password-button">
                     Check
                 </button>
             </div>
@@ -321,10 +284,8 @@ const PasswordGuesser = ({
     );
 };
 
-// CharacterCard Component
 const CharacterCard = ({ char }) => {
     const isImage = typeof char.avatar === 'string' && (char.avatar.includes('.png') || char.avatar.includes('data:image'));
-
     return (
         <div className="character-card">
             <div className="character-avatar">
@@ -340,7 +301,6 @@ const CharacterCard = ({ char }) => {
     );
 };
 
-// LevelInfo Component
 const LevelInfo = ({ char, attemptCount, levelComplete }) => {
     return (
         <div className="level-info">
@@ -356,7 +316,6 @@ const LevelInfo = ({ char, attemptCount, levelComplete }) => {
     );
 };
 
-// LevelComplete Component
 const LevelComplete = ({ gameMode, currentLevel, nextLevel }) => {
     return (
         <div className="level-complete">
@@ -375,16 +334,7 @@ const LevelComplete = ({ gameMode, currentLevel, nextLevel }) => {
     );
 };
 
-// ChatPanel Component
-const ChatPanel = ({
-                       char,
-                       chatHistory,
-                       isLoading,
-                       userInput,
-                       setUserInput,
-                       handleSubmit,
-                       chatContainerRef
-                   }) => {
+const ChatPanel = ({ char, chatHistory, isLoading, userInput, setUserInput, handleSubmit, chatContainerRef }) => {
     const isImage = typeof char.avatar === 'string' && (char.avatar.includes('.png') || char.avatar.includes('data:image'));
 
     return (
@@ -414,9 +364,7 @@ const ChatPanel = ({
                             )}
                         </div>
                         <p className="chat-empty-title">Start a conversation with {char.name}</p>
-                        <p className="chat-empty-subtitle">
-                            Use prompt engineering to extract the password
-                        </p>
+                        <p className="chat-empty-subtitle">Use prompt engineering to extract the password</p>
                     </div>
                 ) : (
                     chatHistory.map((msg, i) => (
@@ -442,9 +390,7 @@ const ChatPanel = ({
                         placeholder="Type your message to exploit the vulnerability..."
                         className="chat-input"
                     />
-                    <button onClick={handleSubmit} className="chat-send-button">
-                        Send
-                    </button>
+                    <button onClick={handleSubmit} className="chat-send-button">Send</button>
                 </div>
                 <p className="chat-tip">💡 Tip: Be creative with your prompts!</p>
             </div>
@@ -452,22 +398,115 @@ const ChatPanel = ({
     );
 };
 
-// MenuScreen Component (with PNGs, username system, and modal from File 1)
-const MenuScreen = ({
-                        onStartGame,
-                        apiKeyInput,
-                        setApiKeyInput,
-                        setGeminiApiKey,
-                        showApiInput,
-                        setShowApiInput,
-                        onShowLeaderboard,
-                        username,
-                        setUsername,
-                        usernameInput,
-                        setUsernameInput,
-                        modalCharacter,
-                        setModalCharacter
-                    }) => {
+const MenuScreen = ({ onStartGame, apiKeyInput, setApiKeyInput, setGeminiApiKey, showApiInput, setShowApiInput, onShowLeaderboard, username, setUsername, usernameInput, setUsernameInput, modalCharacter, setModalCharacter }) => {
+    const [passwordInput, setPasswordInput] = useState('');
+    const [showPasswordInput, setShowPasswordInput] = useState(false);
+    const [isNewUser, setIsNewUser] = useState(false);
+    const [passwordError, setPasswordError] = useState('');
+    const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+
+    // Simple hash function (use bcrypt or similar in production)
+    const hashPassword = (password) => {
+        return btoa(password); // Basic encoding - replace with proper hashing
+    };
+
+    const checkUsername = async () => {
+        const trimmed = (usernameInput || '').trim();
+        if (!trimmed) {
+            setPasswordError('Please enter a username');
+            return;
+        }
+
+        try {
+            const db = getDatabase();
+            const userRef = ref(db, `users/${trimmed}`);
+            const snapshot = await get(userRef);
+
+            if (snapshot.exists()) {
+                // User exists - ask for password
+                setIsNewUser(false);
+                setShowPasswordInput(true);
+            } else {
+                // New user - ask to create password
+                setIsNewUser(true);
+                setShowPasswordInput(true);
+            }
+        } catch (error) {
+            console.error('Error checking username:', error);
+            setPasswordError('Error connecting to database. Please try again.');
+        }
+    };
+
+    const handleLogin = async () => {
+        const trimmed = usernameInput.trim();
+
+        if (isNewUser) {
+            // New user registration
+            if (passwordInput.length < 6) {
+                setPasswordError('Password must be at least 6 characters');
+                return;
+            }
+            if (passwordInput !== confirmPasswordInput) {
+                setPasswordError('Passwords do not match');
+                return;
+            }
+
+            try {
+                const db = getDatabase();
+                const userRef = ref(db, `users/${trimmed}`);
+
+                await set(userRef, {
+                    passwordHash: hashPassword(passwordInput),
+                    createdAt: new Date().toISOString(),
+                    lastLogin: new Date().toISOString()
+                });
+
+                setUsername(trimmed);
+                setPasswordError('');
+                setShowPasswordInput(false);
+                setPasswordInput('');
+                setConfirmPasswordInput('');
+            } catch (error) {
+                console.error('Error registering user:', error);
+                setPasswordError('Error creating account. Please try again.');
+            }
+        } else {
+            // Existing user login
+            try {
+                const db = getDatabase();
+                const userRef = ref(db, `users/${trimmed}`);
+                const snapshot = await get(userRef);
+
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    if (userData.passwordHash === hashPassword(passwordInput)) {
+                        // Update last login
+                        await set(ref(db, `users/${trimmed}/lastLogin`), new Date().toISOString());
+
+                        setUsername(trimmed);
+                        setPasswordError('');
+                        setShowPasswordInput(false);
+                        setPasswordInput('');
+                    } else {
+                        setPasswordError('Incorrect password');
+                    }
+                } else {
+                    setPasswordError('User not found');
+                }
+            } catch (error) {
+                console.error('Error logging in:', error);
+                setPasswordError('Error logging in. Please try again.');
+            }
+        }
+    };
+
+    const handleBackToUsername = () => {
+        setShowPasswordInput(false);
+        setPasswordInput('');
+        setConfirmPasswordInput('');
+        setPasswordError('');
+    };
+
     return (
         <div className="menu-screen">
             <div className="menu-container">
@@ -485,11 +524,7 @@ const MenuScreen = ({
                         <h3>🔑 Enter Your Gemini API Key</h3>
                         <p>
                             Get your free API key from{' '}
-                            <a
-                                href="https://aistudio.google.com/app/apikey"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
+                            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">
                                 Google AI Studio
                             </a>
                         </p>
@@ -516,61 +551,183 @@ const MenuScreen = ({
                     <>
                         {!username && (
                             <div className="username-box">
-                                <h3>👤 Enter Your Username</h3>
-                                <div className="api-key-input-group">
-                                    <input
-                                        type="text"
-                                        value={usernameInput}
-                                        onChange={(e) => setUsernameInput(e.target.value)}
-                                        placeholder="Your name..."
-                                        className="api-key-input"
-                                    />
-                                    <button
-                                        onClick={() => {
-                                            const trimmed = (usernameInput || '').trim();
-                                            if (!trimmed) return;
-                                            setUsername(trimmed);
-                                        }}
-                                        className="api-key-button"
-                                    >
-                                        Save
-                                    </button>
-                                </div>
+                                {!showPasswordInput ? (
+                                    <>
+                                        <h3>Enter Your Username</h3>
+                                        <div className="api-key-input-group">
+                                            <input
+                                                type="text"
+                                                value={usernameInput}
+                                                onChange={(e) => {
+                                                    setUsernameInput(e.target.value);
+                                                    setPasswordError('');
+                                                }}
+                                                onKeyPress={(e) => e.key === 'Enter' && checkUsername()}
+                                                placeholder="Your name..."
+                                                className="api-key-input"
+                                            />
+                                            <button
+                                                onClick={checkUsername}
+                                                className="api-key-button"
+                                            >
+                                                Continue
+                                            </button>
+                                        </div>
+                                        {passwordError && !showPasswordInput && (
+                                            <p style={{ color: '#ff3333', fontSize: '13px', marginTop: '8px' }}>
+                                                {passwordError}
+                                            </p>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <h3>{isNewUser ? '🆕 Create New Account' : '🔐 Welcome Back!'}</h3>
+                                        <p style={{ color: '#999999', fontSize: '13px', marginBottom: '12px' }}>
+                                            {isNewUser
+                                                ? `Create a password for ${usernameInput}`
+                                                : `Enter your password for ${usernameInput}`
+                                            }
+                                        </p>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            <input
+                                                type="password"
+                                                value={passwordInput}
+                                                onChange={(e) => {
+                                                    setPasswordInput(e.target.value);
+                                                    setPasswordError('');
+                                                }}
+                                                onKeyPress={(e) => e.key === 'Enter' && !isNewUser && handleLogin()}
+                                                placeholder="Password..."
+                                                className="api-key-input"
+                                            />
+                                            {isNewUser && (
+                                                <input
+                                                    type="password"
+                                                    value={confirmPasswordInput}
+                                                    onChange={(e) => {
+                                                        setConfirmPasswordInput(e.target.value);
+                                                        setPasswordError('');
+                                                    }}
+                                                    onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                                                    placeholder="Confirm password..."
+                                                    className="api-key-input"
+                                                />
+                                            )}
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button
+                                                    onClick={handleBackToUsername}
+                                                    className="api-key-button"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, #666, #444)',
+                                                        flex: 1
+                                                    }}
+                                                >
+                                                    Back
+                                                </button>
+                                                <button
+                                                    onClick={handleLogin}
+                                                    className="api-key-button"
+                                                    style={{ flex: 2 }}
+                                                >
+                                                    {isNewUser ? 'Create Account' : 'Login'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {passwordError && (
+                                            <p style={{ color: '#ff3333', fontSize: '13px', marginTop: '8px' }}>
+                                                {passwordError}
+                                            </p>
+                                        )}
+                                        {isNewUser && (
+                                            <p style={{ color: '#999999', fontSize: '12px', marginTop: '8px' }}>
+                                                Password must be at least 6 characters
+                                            </p>
+                                        )}
+                                    </>
+                                )}
                             </div>
                         )}
                         {username && (
                             <div className="player-badge-fixed">Player: {username}</div>
                         )}
+
                         <div className="game-modes">
-                            <button onClick={() => onStartGame('story')} className="story-mode-button" disabled={!username}>
+                            <button
+                                className={`story-mode-button ${!username ? 'disabled' : ''}`}
+                                onClick={() => username && onStartGame('story')}
+                                disabled={!username}
+                            >
                                 <img src={storymodeLogo} alt="Story Mode" />
                             </button>
-                            <button onClick={() => onStartGame('endless')} className="story-mode-button" disabled={!username}>
+
+                            <button
+                                className={`story-mode-button ${!username ? 'disabled' : ''}`}
+                                onClick={() => username && onStartGame('endless')}
+                                disabled={!username}
+                            >
                                 <img src={endlessmodeLogo} alt="Endless Mode" />
                             </button>
-                            <button onClick={() => onStartGame('pvp')} className="story-mode-button" disabled={!username}>
+
+                            <button
+                                className={`story-mode-button ${!username ? 'disabled' : ''}`}
+                                onClick={() => username && onStartGame('pvp')}
+                                disabled={!username}
+                            >
                                 <img src={pvpmodeLogo} alt="PvP Mode" />
                             </button>
 
                             <button
-                                onClick={() => onStartGame('botbuilder')}
-                                className="bot-builder-mode-button"
+                                className={`story-mode-button ${!username ? 'disabled' : ''}`}
+                                onClick={() => username && onStartGame('botbuilder')}
                                 disabled={!username}
                             >
-                              <span className="bot-builder-text">
-                                BOT BUILDER <br /> MODE
-                              </span>
+                                <img src={builder} alt="Bot Builder" />
                             </button>
                         </div>
 
-                        <button onClick={onShowLeaderboard} className="leaderboard-menu-btn">
+                        <button
+                            onClick={onShowLeaderboard}
+                            className="leaderboard-menu-btn"
+                            disabled={!username}
+                        >
                             🏆 View Leaderboard
                         </button>
 
                         <div className="owasp-showcase">
-                            <h3>Learn more!</h3>
+                            <h3>
+                                <a
+                                    href="https://genai.owasp.org/llm-top-10/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="owasp-link"
+                                >
+                                    Learn more!
+                                </a>
+                            </h3>
                             <div className="owasp-grid">
-                                {CHARACTERS.slice(0, 10).map(c => {
+                                {CHARACTERS.slice(0, 5).map(c => {
+                                    const isImage = typeof c.avatar === 'string' && (c.avatar.includes('.png') || c.avatar.includes('data:image'));
+                                    return (
+                                        <div
+                                            key={c.id}
+                                            className="owasp-item"
+                                            onClick={() => (c.id >= 1 && c.id <= 10) && setModalCharacter(c)}
+                                            style={{ cursor: (c.id >= 1 && c.id <= 10) ? 'pointer' : 'default' }}
+                                        >
+                                            <div className="owasp-avatar">
+                                                {isImage ? (
+                                                    <img src={c.avatar} alt={c.owasp} className="owasp-avatar-img" />
+                                                ) : (
+                                                    c.avatar
+                                                )}
+                                            </div>
+                                            <div className="owasp-code">{c.owasp}</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div className="owasp-grid">
+                                {CHARACTERS.slice(5, 10).map(c => {
                                     const isImage = typeof c.avatar === 'string' && (c.avatar.includes('.png') || c.avatar.includes('data:image'));
                                     return (
                                         <div
@@ -605,30 +762,7 @@ const MenuScreen = ({
     );
 };
 
-// GameScreen Component
-const GameScreen = ({
-                        gameMode,
-                        handleGameModeChange,
-                        currentLevel,
-                        endlessBossLevel,
-                        endlessScore,
-                        username,
-                        char,
-                        chatHistory,
-                        isLoading,
-                        levelComplete,
-                        attemptCount,
-                        passwordGuess,
-                        setPasswordGuess,
-                        guessMessage,
-                        userInput,
-                        setUserInput,
-                        handleSubmit,
-                        handlePasswordGuess,
-                        nextLevel,
-                        resetConversation,
-                        chatContainerRef
-                    }) => {
+const GameScreen = ({ gameMode, handleGameModeChange, currentLevel, endlessBossLevel, endlessScore, username, char, chatHistory, isLoading, levelComplete, attemptCount, passwordGuess, setPasswordGuess, guessMessage, userInput, setUserInput, handleSubmit, handlePasswordGuess, nextLevel, resetConversation, chatContainerRef }) => {
     return (
         <div className="game-screen">
             {username && (
@@ -651,14 +785,8 @@ const GameScreen = ({
                 <div className="game-grid">
                     <div className="left-panel">
                         <CharacterCard char={char} />
-
                         <div className="level-info-container">
-                            <LevelInfo
-                                char={char}
-                                attemptCount={attemptCount}
-                                levelComplete={levelComplete}
-                            />
-
+                            <LevelInfo char={char} attemptCount={attemptCount} levelComplete={levelComplete} />
                             <PasswordGuesser
                                 passwordGuess={passwordGuess}
                                 setPasswordGuess={setPasswordGuess}
@@ -666,23 +794,13 @@ const GameScreen = ({
                                 levelComplete={levelComplete}
                                 guessMessage={guessMessage}
                             />
-
                             {levelComplete && (
-                                <LevelComplete
-                                    gameMode={gameMode}
-                                    currentLevel={currentLevel}
-                                    nextLevel={nextLevel}
-                                />
+                                <LevelComplete gameMode={gameMode} currentLevel={currentLevel} nextLevel={nextLevel} />
                             )}
                         </div>
-
                         {char && <HintBox char={char} />}
-
-                        <button onClick={resetConversation} className="reset-button">
-                            Reset Conversation
-                        </button>
+                        <button onClick={resetConversation} className="reset-button">Reset Conversation</button>
                     </div>
-
                     <ChatPanel
                         char={char}
                         chatHistory={chatHistory}
@@ -699,10 +817,9 @@ const GameScreen = ({
 };
 
 // ============================================
-// MAIN APP COMPONENT
+// MAIN APP
 // ============================================
 export default function AIRedTeamCTF() {
-    // State Management
     const [gameMode, setGameMode] = useState('menu');
     const [currentLevel, setCurrentLevel] = useState(0);
     const [chatHistory, setChatHistory] = useState([]);
@@ -727,24 +844,17 @@ export default function AIRedTeamCTF() {
     const [usernameInput, setUsernameInput] = useState('');
     const [modalCharacter, setModalCharacter] = useState(null);
 
-    // Refs
     const chatContainerRef = useRef(null);
 
-    // Helper Functions
     const getCurrentCharacter = useCallback(() => {
-        return gameMode === 'endless'
-            ? (randomChar || CHARACTERS[0])
-            : CHARACTERS[currentLevel];
+        return gameMode === 'endless' ? (randomChar || CHARACTERS[0]) : CHARACTERS[currentLevel];
     }, [gameMode, randomChar, currentLevel]);
 
     const getCurrentPassword = useCallback(() => {
-        const key = gameMode === 'endless'
-            ? `endless_${endlessBossLevel}`
-            : `story_${currentLevel}`;
+        const key = gameMode === 'endless' ? `endless_${endlessBossLevel}` : `story_${currentLevel}`;
         return levelPasswords[key] || '';
     }, [gameMode, endlessBossLevel, currentLevel, levelPasswords]);
 
-    // Event Handlers
     const handleSubmit = useCallback(async () => {
         if (!userInput || isLoading) return;
 
@@ -753,13 +863,7 @@ export default function AIRedTeamCTF() {
         setUserInput('');
         setIsLoading(true);
 
-        const response = await GeminiService.callAPI(
-            geminiApiKey,
-            getCurrentCharacter(),
-            getCurrentPassword(),
-            chatHistory,
-            userInput
-        );
+        const response = await GeminiService.callAPI(geminiApiKey, getCurrentCharacter(), getCurrentPassword(), chatHistory, userInput);
 
         setChatHistory(prev => [...prev, { role: 'assistant', content: response }]);
         setIsLoading(false);
@@ -796,10 +900,7 @@ export default function AIRedTeamCTF() {
             const nextBossLevel = endlessBossLevel + 1;
             setEndlessBossLevel(nextBossLevel);
             setRandomChar(CHARACTERS[Math.floor(Math.random() * 10)]);
-            setLevelPasswords(prev => ({
-                ...prev,
-                [`endless_${nextBossLevel}`]: getRandomPassword()
-            }));
+            setLevelPasswords(prev => ({ ...prev, [`endless_${nextBossLevel}`]: getRandomPassword() }));
         }
 
         setChatHistory([]);
@@ -822,9 +923,7 @@ export default function AIRedTeamCTF() {
         setPasswordGuess('');
         setGuessMessage('');
 
-        const passwords = mode === 'story'
-            ? { 'story_0': getRandomPassword() }
-            : { 'endless_1': getRandomPassword() };
+        const passwords = mode === 'story' ? { 'story_0': getRandomPassword() } : { 'endless_1': getRandomPassword() };
 
         if (mode === 'endless') {
             setRandomChar(CHARACTERS[Math.floor(Math.random() * 10)]);
@@ -841,9 +940,7 @@ export default function AIRedTeamCTF() {
         setGuessMessage('');
     }, []);
 
-    // Handle game mode changes to detect endless mode end
     const handleGameModeChange = useCallback((newMode) => {
-        // If we're leaving endless mode and had a score, show game over modal
         if (previousGameMode === 'endless' && newMode === 'menu' && endlessScore > 0) {
             setShowGameOverModal(true);
         }
@@ -851,21 +948,18 @@ export default function AIRedTeamCTF() {
         setGameMode(newMode);
     }, [previousGameMode, endlessScore]);
 
-    // Effects
     useEffect(() => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
     }, [chatHistory, isLoading]);
 
-    // Track game mode changes
     useEffect(() => {
         if (gameMode !== 'menu') {
             setPreviousGameMode(gameMode);
         }
     }, [gameMode]);
 
-    // Render
     const character = getCurrentCharacter();
 
     if (gameMode === 'menu') {
@@ -907,28 +1001,16 @@ export default function AIRedTeamCTF() {
     }
 
     if (gameMode === 'pvp') {
-        return (
-            <PVPModeMultiplayer
-                onBack={() => handleGameModeChange('menu')}
-                geminiApiKey={geminiApiKey}
-                username={username}
-            />
-        );
+        return <PVPModeMultiplayer onBack={() => handleGameModeChange('menu')} geminiApiKey={geminiApiKey} username={username} />;
     }
+
     if (gameMode === 'botbuilder') {
-        return (
-            <BotBuilder
-                onBack={() => handleGameModeChange('menu')}
-                geminiApiKey={geminiApiKey}
-                username={username}
-            />
-        );
+        return <BotBuilder onBack={() => handleGameModeChange('menu')} geminiApiKey={geminiApiKey} username={username} />;
     }
 
     return (
         <GameScreen
             gameMode={gameMode}
-            setGameMode={setGameMode}
             handleGameModeChange={handleGameModeChange}
             currentLevel={currentLevel}
             endlessBossLevel={endlessBossLevel}
