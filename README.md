@@ -37,6 +37,14 @@ VITE_APP_GEMINI_API_KEY=
 
 Obtain your API key from the [Google AI Studio](https://aistudio.google.com) and paste it into the `.env` file.
 
+### 4. Start the Development Server
+Once all dependencies are installed and your `.env` file is configured, start the development server with:
+```bash
+npm run dev
+```
+
+The application will be available in your browser at the URL displayed in your terminal.
+
 ## React Compiler
 The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
 Note: This will impact Vite dev & build performances.
